@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Private Chat App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="login-screen" class="screen">
+    <h2>Login</h2>
+    <input id="username" type="text" placeholder="Username" autocomplete="off" />
+    <input id="password" type="password" placeholder="Password" autocomplete="off" />
+    <button id="login-btn">Login</button>
+    <p id="login-error" class="error"></p>
+  </div>
+
+  <div id="chat-screen" class="screen hidden">
+    <header>
+      <h2>Private Chat</h2>
+      <button id="logout-btn" title="Logout">Logout</button>
+    </header>
+
+    <section id="messages"></section>
+
+    <div id="input-area">
+      <textarea id="message-input" placeholder="Type a message..."></textarea>
+      <button id="send-btn" title="Send message">Send</button>
+      <button id="delete-btn" title="Delete Chat">🗑️ Delete Chat</button>
+      <label>
+        Notifications
+        <input type="checkbox" id="notif-toggle" />
+      </label>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
