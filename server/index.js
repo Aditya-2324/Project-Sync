@@ -59,9 +59,3 @@ setInterval(() => {
 }, 60 * 60 * 1000);
 
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
-
-});
-
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
