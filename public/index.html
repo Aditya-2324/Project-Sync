@@ -1,39 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Project Sync</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="login-screen" class="screen">
+  <div id="loginBox">
     <h2>Login</h2>
-    <input id="username" type="text" placeholder="Username" autocomplete="off" />
-    <input id="password" type="password" placeholder="Password" autocomplete="off" />
-    <button id="login-btn">Login</button>
-    <p id="login-error" class="error"></p>
+    <input id="username" placeholder="Username">
+    <input id="password" placeholder="Password" type="password">
+    <button id="loginBtn">Login</button>
   </div>
-
-  <div id="chat-screen" class="screen hidden">
-    <header>
-      <h2>Private Chat</h2>
-      <button id="logout-btn" title="Logout">Logout</button>
-    </header>
-
-    <section id="messages"></section>
-
-    <div id="input-area">
-      <textarea id="message-input" placeholder="Type a message..."></textarea>
-      <button id="send-btn" title="Send message">Send</button>
-      <button id="delete-btn" title="Delete Chat">🗑️ Delete Chat</button>
-      <label>
-        Notifications
-        <input type="checkbox" id="notif-toggle" />
-      </label>
-    </div>
+  <div id="chatBox" class="hidden">
+    <div id="status"></div>
+    <div id="messages"></div>
+    <div id="typing"></div>
+    <input id="input" placeholder="Type a message...">
+    <button id="send">Send</button>
+    <button id="deleteAll">🗑️ Delete Chat</button>
+    <button id="toggleNotify">🔔 Toggle Notifications</button>
   </div>
-
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
 </body>
