@@ -8,8 +8,8 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const VALID_USERS = {
-  player 1: '230824',
-  player 2: '240823',
+  typer: '230824',
+  reciever: '240823',
 };
 
 let messages = [];
