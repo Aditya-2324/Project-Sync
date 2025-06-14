@@ -49,9 +49,11 @@ body {
 }
 
 #reply-box {
-  background-color: #d9fdd3;
+  display: none;
   padding: 5px 10px;
   margin-bottom: 5px;
+  background-color: #dcf8c6;
   border-left: 4px solid #34b7f1;
   font-size: 0.9em;
+  color: #333;
 }
