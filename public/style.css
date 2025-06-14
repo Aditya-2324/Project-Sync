@@ -21,25 +21,13 @@ body {
 }
 
 .msg {
-  margin: 5px 0;
-  padding: 10px;
+  word-wrap: break-word;
   max-width: 80%;
-  border-radius: 10px;
-  position: relative;
+  overflow-wrap: break-word;
 }
 
-.left {
-  background: #e0e0e0;
-  text-align: left;
-  float: left;
-  clear: both;
-}
-
-.right {
-  background: #d1ffd1;
-  text-align: right;
-  float: right;
-  clear: both;
+.left, .right {
+  overflow-x: hidden;
 }
 
 .reply {
