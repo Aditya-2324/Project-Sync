@@ -1,69 +1,76 @@
 const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 const path = require('path');
 
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 const users = {
-  user: 'pass123',
-  project: 'pass456'
+  user1: { password: '1234', online: false, socketId: null },
+  user2: { password: '5678', online: false, socketId: null }
 };
 
-let messages = [];
-let onlineUsers = {};
-
-app.use(express.static(path.join(__dirname, '../public')));
-app.use(express.json());
-
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  if (users[username] === password) {
-    return res.status(200).json({ success: true });
-  }
-  return res.status(401).json({ success: false });
-});
-
-app.get('/messages', (req, res) => {
-  res.json(messages);
-});
-
-app.post('/delete-all', (req, res) => {
-  messages = [];
-  io.emit('cleared');
-  res.sendStatus(200);
-});
+let chatHistory = [];
 
 io.on('connection', (socket) => {
   let currentUser = null;
 
-  socket.on('join', (username) => {
-    currentUser = username;
-    onlineUsers[username] = true;
-    io.emit('online-users', onlineUsers);
+  socket.on('login', ({ username, password }) => {
+    if (users[username] && users[username].password === password) {
+      currentUser = username;
+      users[username].online = true;
+      users[username].socketId = socket.id;
+
+      socket.emit('loginSuccess', { username, chatHistory });
+      io.emit('updateUsers', getUserStatus());
+    } else {
+      socket.emit('loginFailed');
+    }
   });
 
-  socket.on('message', (msg) => {
-    messages.push(msg);
-    io.emit('message', msg);
+  socket.on('typing', () => {
+    if (currentUser) socket.broadcast.emit('typing', currentUser);
   });
 
-  socket.on('typing', ({ from, isTyping }) => {
-    socket.broadcast.emit('typing', { from, isTyping });
+  socket.on('stopTyping', () => {
+    if (currentUser) socket.broadcast.emit('stopTyping', currentUser);
   });
 
-  socket.on('seen', (msgId) => {
-    messages = messages.map(m => m.id === msgId ? { ...m, seen: true } : m);
-    io.emit('seen', msgId);
+  socket.on('sendMessage', (msg) => {
+    const message = {
+      sender: currentUser,
+      text: msg.text,
+      timestamp: Date.now(),
+      replyTo: msg.replyTo || null,
+      seen: false
+    };
+    chatHistory.push(message);
+    io.emit('newMessage', message);
+  });
+
+  socket.on('markSeen', () => {
+    chatHistory.forEach((msg) => {
+      if (msg.sender !== currentUser) msg.seen = true;
+    });
+    io.emit('chatHistory', chatHistory);
   });
 
   socket.on('disconnect', () => {
-    if (currentUser) {
-      delete onlineUsers[currentUser];
-      io.emit('online-users', onlineUsers);
+    if (currentUser && users[currentUser]) {
+      users[currentUser].online = false;
+      users[currentUser].socketId = null;
+      io.emit('updateUsers', getUserStatus());
     }
   });
 });
 
-server.listen(3000, () => console.log('Server running on port 3000'));
+function getUserStatus() {
+  return Object.fromEntries(Object.entries(users).map(([user, info]) => [user, info.online]));
+}
+
+http.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
