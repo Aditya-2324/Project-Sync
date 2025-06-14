@@ -64,17 +64,29 @@ function addMessage(msg) {
   textDiv.innerHTML = msg.text + ` <small>${msg.seen ? "✓✓" : "✓"}</small>`;
   msgDiv.appendChild(textDiv);
 
-  // Swipe-to-reply logic
+  // Add swipe support
   let touchStartX = 0;
-  let touchEndX = 0;
 
   msgDiv.addEventListener("touchstart", (e) => {
-    touchStartX = e.changedTouches[0].screenX;
+    touchStartX = e.touches[0].clientX;
   });
 
   msgDiv.addEventListener("touchend", (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe(msgDiv, msg.text, msg.sender);
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchEndX - touchStartX;
+
+    // Only act if horizontal swipe is significant
+    if (Math.abs(diffX) > 50) {
+      const isRightSwipe = diffX > 0;
+      const isLeftAligned = msgDiv.classList.contains("left");
+      const isRightAligned = msgDiv.classList.contains("right");
+
+      if ((isRightSwipe && isLeftAligned) || (!isRightSwipe && isRightAligned)) {
+        replyTo = msg.text;
+        document.getElementById("reply-box").textContent = "Replying to: " + msg.text;
+        document.getElementById("reply-box").style.display = "block";
+      }
+    }
   });
 
   document.getElementById("chat-box").appendChild(msgDiv);
