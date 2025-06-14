@@ -126,3 +126,8 @@ function typing() {
 function stopTyping() {
   socket.emit("stopTyping");
 }
+// Disable horizontal swipe scrolling on mobile
+window.addEventListener('touchmove', function (e) {
+  if (e.touches.length > 1 || (e.scale && e.scale !== 1)) return;
+  e.preventDefault();
+}, { passive: false });
