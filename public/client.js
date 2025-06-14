@@ -1,79 +1,77 @@
 const socket = io();
-let username = '';
+let username;
 
-const loginBox = document.getElementById('loginBox');
-const chatBox = document.getElementById('chatBox');
-const input = document.getElementById('input');
-const messages = document.getElementById('messages');
-const typingDiv = document.getElementById('typing');
-const statusDiv = document.getElementById('status');
+function login() {
+  username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
 
-const notify = {
-  enabled: true,
-  send: (msg) => {
-    if (notify.enabled && document.hidden) {
-      new Notification(`${msg.user}`, { body: msg.text });
+  fetch('/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  }).then(res => res.json()).then(data => {
+    if (data.success) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('chat-screen').style.display = 'block';
+      socket.emit('join', username);
+      fetchMessages();
+    } else {
+      alert('Invalid credentials');
     }
-  },
-};
-
-if (Notification.permission !== 'granted') Notification.requestPermission();
-
-function append(msg, fromSelf = false) {
-  const div = document.createElement('div');
-  div.className = fromSelf ? 'self' : 'other';
-  div.textContent = `${msg.user}: ${msg.text}`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+  });
 }
 
-document.getElementById('loginBtn').onclick = () => {
-  socket.emit('login', {
-    username: document.getElementById('username').value,
-    password: document.getElementById('password').value,
-  });
-};
+function fetchMessages() {
+  fetch('/messages')
+    .then(res => res.json())
+    .then(data => {
+      const box = document.getElementById('chat-box');
+      box.innerHTML = '';
+      data.forEach(msg => renderMsg(msg));
+    });
+}
 
-document.getElementById('send').onclick = () => {
-  const text = input.value.trim();
-  if (text) {
-    socket.emit('sendMessage', text);
-    input.value = '';
-    socket.emit('typing', false);
-  }
-};
+function sendMsg() {
+  const input = document.getElementById('msg-input');
+  const msg = {
+    id: Date.now().toString(),
+    from: username,
+    text: input.value,
+    time: new Date().toLocaleTimeString(),
+    seen: false
+  };
+  socket.emit('message', msg);
+  input.value = '';
+  renderMsg(msg);
+}
 
-input.oninput = () => {
-  socket.emit('typing', input.value.length > 0);
-};
+function deleteChat() {
+  fetch('/delete-all', { method: 'POST' });
+}
 
-document.getElementById('deleteAll').onclick = () => {
-  if (confirm('Delete all messages?')) socket.emit('deleteAll');
-};
+function renderMsg(msg) {
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = 'bubble ' + (msg.from === username ? 'me' : 'them');
+  div.innerHTML = `
+    <span>${msg.text}</span>
+    <small>${msg.time}${msg.seen ? ' ✅' : ''}</small>
+  `;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
 
-document.getElementById('toggleNotify').onclick = () => {
-  notify.enabled = !notify.enabled;
-  alert('Notifications ' + (notify.enabled ? 'enabled' : 'disabled'));
-};
-
-socket.on('loginSuccess', (data) => {
-  username = data.username;
-  loginBox.classList.add('hidden');
-  chatBox.classList.remove('hidden');
-  data.messages.forEach(msg => append(msg, msg.user === username));
+const input = document.getElementById('msg-input');
+input.addEventListener('input', () => {
+  socket.emit('typing', { from: username, isTyping: input.value.length > 0 });
 });
 
-socket.on('loginFailure', () => alert('Login failed'));
-socket.on('message', (msg) => {
-  append(msg, msg.user === username);
-  notify.send(msg);
+socket.on('message', msg => renderMsg(msg));
+socket.on('cleared', () => document.getElementById('chat-box').innerHTML = '');
+socket.on('typing', ({ from, isTyping }) => {
+  document.getElementById('typing').innerText = isTyping ? `${from} is typing...` : '';
 });
-socket.on('messageDeleted', () => messages.innerHTML = '');
-socket.on('typing', ({ user, isTyping }) => {
-  typingDiv.textContent = isTyping ? `${user} is typing...` : '';
-});
-socket.on('userStatus', (users) => {
-  statusDiv.innerHTML = Object.entries(users).map(([u, _]) =>
-    `<span>${u} 🟢</span>`
-  ).join(' ');
+socket.on('online-users', (list) => {
+  document.getElementById('status-bar').innerText =
+    Object.keys(list).join(', ') + ' online';
 });
