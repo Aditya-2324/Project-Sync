@@ -52,18 +52,47 @@ function updateChat(messages) {
 function addMessage(msg) {
   const msgDiv = document.createElement("div");
   msgDiv.className = msg.sender === currentUser ? "msg right" : "msg left";
+
   if (msg.replyTo) {
     const replyDiv = document.createElement("div");
     replyDiv.className = "reply";
     replyDiv.textContent = "Reply to: " + msg.replyTo;
     msgDiv.appendChild(replyDiv);
   }
-  msgDiv.innerHTML += `<div>${msg.text}</div><small>${msg.seen ? "✓✓" : "✓"}</small>`;
-  msgDiv.ondblclick = () => {
-    replyTo = msg.text;
-    document.getElementById("reply-box").textContent = "Replying to: " + msg.text;
-  };
+
+  const textDiv = document.createElement("div");
+  textDiv.innerHTML = msg.text + ` <small>${msg.seen ? "✓✓" : "✓"}</small>`;
+  msgDiv.appendChild(textDiv);
+
+  // Swipe-to-reply logic
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  msgDiv.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  msgDiv.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe(msgDiv, msg.text, msg.sender);
+  });
+
   document.getElementById("chat-box").appendChild(msgDiv);
+}
+
+function handleSwipe(msgDiv, text, sender) {
+  const diff = touchEndX - touchStartX;
+  if (Math.abs(diff) > 50) {
+    // Allow only swipe-right on left messages, and swipe-left on right messages
+    const isRightSwipe = diff > 0;
+    const isLeftAligned = msgDiv.classList.contains("left");
+    const isRightAligned = msgDiv.classList.contains("right");
+
+    if ((isRightSwipe && isLeftAligned) || (!isRightSwipe && isRightAligned)) {
+      replyTo = text;
+      document.getElementById("reply-box").textContent = "Replying to: " + text;
+    }
+  }
 }
 
 function sendMessage() {
