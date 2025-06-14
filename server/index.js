@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const users = {
-  user1: { password: '1234', online: false, socketId: null },
-  user2: { password: '5678', online: false, socketId: null }
+  user: { password: '1234', online: false, socketId: null },
+  project: { password: '5678', online: false, socketId: null }
 };
 
 let chatHistory = [];
