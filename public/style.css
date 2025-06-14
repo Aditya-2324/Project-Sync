@@ -47,3 +47,11 @@ body {
   color: #555;
   margin-bottom: 5px;
 }
+
+#reply-box {
+  background-color: #d9fdd3;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  border-left: 4px solid #34b7f1;
+  font-size: 0.9em;
+}
