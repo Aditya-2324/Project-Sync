@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Sync</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProjectSync Chat</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="loginBox">
+  <div id="login-screen">
     <h2>Login</h2>
-    <input id="username" placeholder="Username">
-    <input id="password" placeholder="Password" type="password">
-    <button id="loginBtn">Login</button>
+    <input id="username" placeholder="Username" />
+    <input id="password" type="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
   </div>
-  <div id="chatBox" class="hidden">
-    <div id="status"></div>
-    <div id="messages"></div>
+
+  <div id="chat-screen" style="display:none">
+    <div id="status-bar"></div>
+    <div id="chat-box"></div>
     <div id="typing"></div>
-    <input id="input" placeholder="Type a message...">
-    <button id="send">Send</button>
-    <button id="deleteAll">🗑️ Delete Chat</button>
-    <button id="toggleNotify">🔔 Toggle Notifications</button>
+    <div id="input-bar">
+      <input id="msg-input" placeholder="Type a message..." />
+      <button onclick="sendMsg()">Send</button>
+      <button onclick="deleteChat()">🗑️</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
