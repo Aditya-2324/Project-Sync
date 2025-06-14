@@ -1,61 +1,69 @@
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
+const socketIO = require('socket.io');
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = socketIO(server);
 const path = require('path');
 
-const PORT = process.env.PORT || 3000;
-const VALID_USERS = {
-  typer: '230824',
-  reciever: '240823',
+const users = {
+  user: 'pass123',
+  project: 'pass456'
 };
 
 let messages = [];
 let onlineUsers = {};
 
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.json());
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if (users[username] === password) {
+    return res.status(200).json({ success: true });
+  }
+  return res.status(401).json({ success: false });
+});
+
+app.get('/messages', (req, res) => {
+  res.json(messages);
+});
+
+app.post('/delete-all', (req, res) => {
+  messages = [];
+  io.emit('cleared');
+  res.sendStatus(200);
+});
 
 io.on('connection', (socket) => {
-  socket.on('login', ({ username, password }) => {
-    if (VALID_USERS[username] === password) {
-      socket.username = username;
-      onlineUsers[username] = true;
-      socket.emit('loginSuccess', { username, messages });
-      io.emit('userStatus', onlineUsers);
-    } else {
-      socket.emit('loginFailure');
-    }
+  let currentUser = null;
+
+  socket.on('join', (username) => {
+    currentUser = username;
+    onlineUsers[username] = true;
+    io.emit('online-users', onlineUsers);
   });
 
-  socket.on('sendMessage', (msg) => {
-    const message = { user: socket.username, text: msg, time: Date.now() };
-    messages.push(message);
-    io.emit('message', message);
+  socket.on('message', (msg) => {
+    messages.push(msg);
+    io.emit('message', msg);
   });
 
-  socket.on('deleteAll', () => {
-    messages = [];
-    io.emit('messageDeleted');
+  socket.on('typing', ({ from, isTyping }) => {
+    socket.broadcast.emit('typing', { from, isTyping });
   });
 
-  socket.on('typing', (isTyping) => {
-    socket.broadcast.emit('typing', { user: socket.username, isTyping });
+  socket.on('seen', (msgId) => {
+    messages = messages.map(m => m.id === msgId ? { ...m, seen: true } : m);
+    io.emit('seen', msgId);
   });
 
   socket.on('disconnect', () => {
-    if (socket.username) {
-      delete onlineUsers[socket.username];
-      io.emit('userStatus', onlineUsers);
+    if (currentUser) {
+      delete onlineUsers[currentUser];
+      io.emit('online-users', onlineUsers);
     }
   });
 });
 
-// Purge old messages every hour
-setInterval(() => {
-  const cutoff = Date.now() - 6 * 60 * 60 * 1000; // 6 hours
-  messages = messages.filter(m => m.time > cutoff);
-}, 60 * 60 * 1000);
-
-server.listen(PORT, () => console.log(`Server running on ${PORT}`));
+server.listen(3000, () => console.log('Server running on port 3000'));
