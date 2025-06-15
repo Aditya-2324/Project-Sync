@@ -2,34 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ChatGPT-Style Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Logs Chat</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="/socket.io/socket.io.js"></script>
   <script defer src="client.js"></script>
 </head>
 <body>
   <div id="login-page">
-    <div class="login-container">
-      <h2>Login</h2>
-      <input id="username" placeholder="Username" />
-      <input id="password" type="password" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <p id="login-error" class="error"></p>
-    </div>
+    <h2>Login</h2>
+    <input id="username" placeholder="Username" />
+    <input id="password" type="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p id="login-error" style="color: red"></p>
   </div>
 
-  <div id="chat-page" style="display: none">
-    <div class="chat-container">
-      <div id="online-status"></div>
-      <div id="chat-box"></div>
-      <div id="reply-box"></div>
-      <div id="input-area">
-        <input id="message" placeholder="Type your message..." oninput="typing()" onblur="stopTyping()" />
-        <button onclick="sendMessage()">Send</button>
-      </div>
-      <div id="typing-status"></div>
+  <div id="chat-page" style="display: none;">
+    <div id="online-status"></div>
+    <div id="chat-box"></div>
+    <div id="reply-box"></div>
+    <div id="input-area">
+      <input
+        id="message"
+        placeholder="Type a message"
+        oninput="typing()"
+        onblur="stopTyping()"
+        autocomplete="off"
+      />
+      <button onclick="sendMessage()">Send</button>
     </div>
+    <div id="typing-status"></div>
   </div>
 </body>
 </html>
