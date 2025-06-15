@@ -1,5 +1,5 @@
 {
-  "name":"project-sync-chat",
+  "name":"project-sync-help",
   "version":"1.0.0",
   "main":"index.js",
   "scripts":{"start":"node index.js"},
