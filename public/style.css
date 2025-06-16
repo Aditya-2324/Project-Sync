@@ -1,142 +1,68 @@
-* {
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
   font-family: 'Segoe UI', sans-serif;
-  height: 100%;
-  width: 100%;
-  background: #f7f7f8;
-  margin: 0;
-  padding: 0;
-}
-
-#chat-page, #login-page {
-  width: 100vw;
-  max-width: 100vw;
+  background-color: #f1f1f1;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: white;
-  overflow: hidden
 }
 
-#login-page {
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-#login-page input {
-  margin: 8px;
-  padding: 10px;
-  width: 80%;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-#chat-box {
+#messages {
   flex: 1;
   overflow-y: auto;
   padding: 10px;
-  background: #f0f0f0;
+  display: flex;
+  flex-direction: column;
 }
 
 .msg {
-  max-width: 80%;
-  margin: 8px;
-  padding: 10px 14px;
-  border-radius: 16px;
-  position: relative;
-  font-size: 15px;
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.msg.left {
-  align-self: flex-start;
   background: #fff;
-  border-top-left-radius: 0;
+  padding: 10px 14px;
+  margin: 5px 10px;
+  border-radius: 15px;
+  max-width: 70%;
+  position: relative;
+  align-self: flex-start;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.msg.right {
-  align-self: flex-end;
+.own {
   background: #dcf8c6;
-  border-top-right-radius: 0;
+  align-self: flex-end;
 }
 
-.msg small {
-  display: block;
-  text-align: right;
+.meta {
   font-size: 10px;
-  color: #777;
-  margin-top: 4px;
+  color: gray;
+  text-align: right;
+  margin-top: 3px;
 }
 
-#input-area {
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+form {
   display: flex;
   padding: 10px;
   background: #fff;
   border-top: 1px solid #ddd;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-#message {
-  flex: 1;
-  padding: 12px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  online: none;
+#typing-indicator {
+  font-style: italic;
+  font-size: 12px;
+  padding: 5px 10px;
+  color: #888;
 }
 
-button {
-  margin-left: 10px;
-  padding: 10px 16px;
-  border-radius: 20px;
-  background: #10a37f;
-  color: white;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
+#user-status {
+  font-size: 12px;
+  padding: 8px;
+  color: green;
 }
-
-.msg button {
-  background: #10a37f;
-  border: none;
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  font-size: 14px;
-  position: absolute;
-  right: -28px;
-  top: 10px;
-  cursor: pointer;
-}
-
-#reply-box {
-  display: none;
-  padding: 6px 10px;
-  background-color: #fff3cd;
-  border-left: 4px solid #ffc107;
-  font-size: 0.9em;
-  color: #333;
-}
-
-#online-status {
-  padding: 10px;
-  background: #343541;
-  color: white;
-  font-size: 14px;
-}
-
-#typing-status {
-  padding: 4px 12px;
-  font-size: 0.85em;
-  color: #777;
-}
-
