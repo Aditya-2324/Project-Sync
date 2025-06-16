@@ -9,13 +9,6 @@
   <script defer src="client.js"></script>
 </head>
 <body>
-  <div id="user-status">Offline</div>
-  <div id="messages"></div>
-  <div id="typing-indicator"></div>
-  <form id="form" action="">
-    <input id="m" autocomplete="off" placeholder="Type a message" /><button>Send</button>
-  </form>
-
   <div id="login-page">
     <h2>Login</h2>
     <input id="username" placeholder="Username" />
@@ -25,9 +18,9 @@
   </div>
 
   <div id="chat-page" style="display: none;">
-    <div id="online-status"></div>
+    <div id="online-status">Offline</div>
     <div id="chat-box"></div>
-    <div id="reply-box"></div>
+    <div id="typing-status"></div>
     <div id="input-area">
       <input
         id="message"
@@ -38,7 +31,6 @@
       />
       <button onclick="sendMessage()">Send</button>
     </div>
-    <div id="typing-status"></div>
   </div>
 </body>
 </html>
