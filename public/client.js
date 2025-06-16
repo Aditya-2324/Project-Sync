@@ -1,36 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Logs Chat</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="/socket.io/socket.io.js"></script>
-  <script defer src="client.js"></script>
-</head>
-<body>
-  <div id="login-page">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <p id="login-error" style="color: red"></p>
-  </div>
+const socket = io();
 
-  <div id="chat-page" style="display: none;">
-    <div id="online-status">Offline</div>
-    <div id="chat-box"></div>
-    <div id="typing-status"></div>
-    <div id="input-area">
-      <input
-        id="message"
-        placeholder="Type a message"
-        oninput="typing()"
-        onblur="stopTyping()"
-        autocomplete="off"
-      />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-</body>
-</html>
+let currentUser = null;
+
+const loginPage = document.getElementById('login-page');
+const chatPage = document.getElementById('chat-page');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const loginError = document.getElementById('login-error');
+const messageInput = document.getElementById('message');
+const chatBox = document.getElementById('chat-box');
+const typingStatus = document.getElementById('typing-status');
+const onlineStatus = document.getElementById('online-status');
+
+const validUsers = {
+  user: '1234',
+  admin: 'admin123',
+};
+
+function login() {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (validUsers[username] === password) {
+    currentUser = username;
+    loginPage.style.display = 'none';
+    chatPage.style.display = 'flex';
+    onlineStatus.innerText = 'Online';
+    socket.emit('user connected', username);
+  } else {
+    loginError.innerText = 'Invalid credentials';
+  }
+}
+
+function sendMessage() {
+  const msg = messageInput.value.trim();
+  if (!msg) return;
+
+  socket.emit('chat message', { user: currentUser, text: msg });
+  messageInput.value = '';
+}
+
+socket.on('chat message', (msg) => {
+  const item = document.createElement('div');
+  item.className = msg.user === currentUser ? 'msg own' : 'msg';
+
+  const text = document.createElement('div');
+  text.innerText = msg.text;
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerText = msg.user === currentUser ? '✓✓' : msg.user;
+
+  const deleteBtn = document.createElement('span');
+  deleteBtn.innerText = '🗑️';
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.onclick = () => item.remove();
+
+  item.appendChild(text);
+  item.appendChild(meta);
+  if (msg.user === currentUser) item.appendChild(deleteBtn);
+
+  chatBox.appendChild(item);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+function typing() {
+  socket.emit('typing', currentUser);
+}
+
+function stopTyping() {
+  setTimeout(() => {
+    typingStatus.innerText = '';
+  }, 2000);
+}
+
+socket.on('show typing', (user) => {
+  if (user !== currentUser) {
+    typingStatus.innerText = `${user} is typing...`;
+    stopTyping();
+  }
+});
+
+socket.on('connect', () => {
+  if (currentUser) {
+    socket.emit('user connected', currentUser);
+    onlineStatus.innerText = 'Online';
+  }
+});
+
+socket.on('disconnect', () => {
+  onlineStatus.innerText = 'Offline';
+});
+
+window.login = login;
+window.sendMessage = sendMessage;
+window.typing = typing;
+window.stopTyping = stopTyping;
