@@ -1,105 +1,64 @@
 const socket = io();
-let currentUser = null;
-let replyTo = null;
-let typingTimeout;
+const form = document.getElementById('form');
+const input = document.getElementById('m');
+const messages = document.getElementById('messages');
+const typingIndicator = document.getElementById('typing-indicator');
+const userStatus = document.getElementById('user-status');
 
-function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
-  socket.emit("login", { username, password });
-}
+// Hardcoded username
+const username = "user";
 
-socket.on("loginSuccess", ({ username, chatHistory }) => {
-  currentUser = username;
-  document.getElementById("login-page").style.display = "none";
-  document.getElementById("chat-page").style.display = "flex";
-  updateChat(chatHistory);
-  socket.emit("markSeen");
+socket.on('connect', () => {
+  userStatus.innerText = 'Online';
 });
 
-socket.on("loginFailed", () => {
-  document.getElementById("login-error").textContent = "Invalid credentials.";
+socket.on('disconnect', () => {
+  userStatus.innerText = 'Offline';
 });
 
-socket.on("newMessage", (msg) => {
-  addMessage(msg);
-  if (msg.sender !== currentUser) socket.emit("markSeen");
-});
-
-socket.on("chatHistory", updateChat);
-
-socket.on("updateUsers", (users) => {
-  const other = Object.keys(users).find(u => u !== currentUser);
-  document.getElementById("online-status").textContent =
-    other + (users[other] ? " (Online)" : " (Offline)");
-});
-
-socket.on("typing", (user) => {
-  document.getElementById("typing-status").textContent = user + " is typing...";
-});
-
-socket.on("stopTyping", () => {
-  document.getElementById("typing-status").textContent = "";
-});
-
-function updateChat(messages) {
-  const box = document.getElementById("chat-box");
-  box.innerHTML = "";
-  messages.forEach(addMessage);
-  box.scrollTop = box.scrollHeight;
-}
-
-function addMessage(msg) {
-  const msgDiv = document.createElement("div");
-  msgDiv.className = msg.sender === currentUser ? "msg right" : "msg left";
-
-  if (msg.replyTo) {
-    const replyDiv = document.createElement("div");
-    replyDiv.className = "reply";
-    replyDiv.textContent = "Reply to: " + msg.replyTo;
-    msgDiv.appendChild(replyDiv);
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (input.value) {
+    socket.emit('chat message', { user: username, text: input.value });
+    input.value = '';
   }
+});
 
-  const textDiv = document.createElement("div");
-  textDiv.innerHTML = `
-    ${msg.text}
-    <small>${msg.seen ? "✓✓" : "✓"}</small>
-  `;
-  msgDiv.appendChild(textDiv);
+socket.on('chat message', (msg) => {
+  const item = document.createElement('div');
+  item.className = msg.user === username ? 'msg own' : 'msg';
 
-  if (msg.sender === currentUser) {
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑";
-    deleteBtn.style.float = "right";
-    deleteBtn.onclick = () => socket.emit("deleteMessage", msg.timestamp);
-    msgDiv.appendChild(deleteBtn);
-  }
+  const text = document.createElement('div');
+  text.innerText = msg.text;
 
-  msgDiv.addEventListener("dblclick", () => {
-    replyTo = msg.text;
-    document.getElementById("reply-box").textContent = "Replying to: " + msg.text;
-    document.getElementById("reply-box").style.display = "block";
-  });
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerText = msg.user === username ? '✓✓' : '';
 
-  document.getElementById("chat-box").appendChild(msgDiv);
-}
+  const deleteBtn = document.createElement('span');
+  deleteBtn.innerText = '🗑️';
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.onclick = () => item.remove();
 
-function sendMessage() {
-  const input = document.getElementById("message");
-  const text = input.value.trim();
-  if (!text) return;
-  socket.emit("sendMessage", { text, replyTo });
-  replyTo = null;
-  document.getElementById("reply-box").style.display = "none";
-  input.value = "";
-}
+  item.appendChild(text);
+  item.appendChild(meta);
+  if (msg.user === username) item.appendChild(deleteBtn);
 
-function typing() {
-  socket.emit("typing");
-  clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => socket.emit("stopTyping"), 1000);
-}
+  messages.appendChild(item);
+  scrollToBottom();
+});
 
-function stopTyping() {
-  socket.emit("stopTyping");
+input.addEventListener('input', () => {
+  socket.emit('typing', username);
+});
+
+socket.on('show typing', (user) => {
+  typingIndicator.innerText = `${user} is typing...`;
+  setTimeout(() => {
+    typingIndicator.innerText = '';
+  }, 2000);
+});
+
+function scrollToBottom() {
+  messages.scrollTop = messages.scrollHeight;
 }
