@@ -2,35 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Logs Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App</title>
   <link rel="stylesheet" href="style.css" />
-  <script defer src="/socket.io/socket.io.js"></script>
-  <script defer src="client.js"></script>
 </head>
 <body>
-  <div id="login-page">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <p id="login-error" style="color: red"></p>
-  </div>
-
-  <div id="chat-page" style="display: none;">
-    <div id="online-status">Offline</div>
-    <div id="chat-box"></div>
-    <div id="typing-status"></div>
-    <div id="input-area">
-      <input
-        id="message"
-        placeholder="Type a message"
-        oninput="typing()"
-        onblur="stopTyping()"
-        autocomplete="off"
-      />
-      <button onclick="sendMessage()">Send</button>
+  <div id="app">
+    <div id="status">Offline</div>
+    <div id="login" class="card">
+      <h2>Login</h2>
+      <input id="username" placeholder="Username" />
+      <input id="password" placeholder="Password" type="password" />
+      <button onclick="login()">Login</button>
+    </div>
+    <div id="chat" class="hidden">
+      <div id="chatBox"></div>
+      <div id="typingIndicator"></div>
+      <div class="input-area">
+        <input id="messageInput" placeholder="Type a message" />
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
   </div>
+  <script src="client.js"></script>
 </body>
 </html>
