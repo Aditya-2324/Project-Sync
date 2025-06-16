@@ -1,66 +1,102 @@
+// client.js
 const socket = io();
-const credentials = { user: "admin", pass: "1234" };
-
-let myName = "";
+let currentUser = null;
 let replyTo = null;
-
-document.getElementById("messageInput").addEventListener("keyup", (e) => {
-  if (e.key === "Enter") sendMessage();
-  else socket.emit("typing", myName);
-});
+let typingTimeout;
 
 function login() {
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
-  if (user === credentials.user && pass === credentials.pass) {
-    myName = user;
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("chat").classList.remove("hidden");
-    document.getElementById("status").innerText = "Online";
-    socket.emit("user-connected", user);
-  } else {
-    alert("Invalid credentials");
-  }
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  socket.emit("login", { username, password });
 }
+
+socket.on("loginSuccess", ({ username, chatHistory }) => {
+  currentUser = username;
+  document.getElementById("login-page").style.display = "none";
+  document.getElementById("chat-page").style.display = "flex";
+  updateChat(chatHistory);
+  socket.emit("markSeen");
+});
+
+socket.on("loginFailed", () => {
+  document.getElementById("login-error").textContent = "Invalid credentials.";
+});
+
+socket.on("newMessage", (message) => {
+  addMessage(message);
+  scrollChatToBottom();
+});
+
+socket.on("chatHistory", (chatHistory) => {
+  updateChat(chatHistory);
+});
+
+socket.on("typing", (user) => {
+  if (user !== currentUser) {
+    document.getElementById("typing-status").textContent = `${user} is typing...`;
+  }
+});
+
+socket.on("stopTyping", () => {
+  document.getElementById("typing-status").textContent = "";
+});
 
 function sendMessage() {
-  const msg = document.getElementById("messageInput").value.trim();
-  if (msg) {
-    socket.emit("message", { from: myName, text: msg, replyTo });
-    document.getElementById("messageInput").value = "";
-    replyTo = null;
-    showTyping("");
-  }
+  const input = document.getElementById("message");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const message = {
+    text,
+    replyTo
+  };
+
+  socket.emit("sendMessage", message);
+  input.value = "";
+  replyTo = null;
+  document.getElementById("reply-box").style.display = "none";
+  stopTyping();
 }
 
-function showTyping(user) {
-  document.getElementById("typingIndicator").innerText = user ? `${user} is typing...` : "";
+function typing() {
+  socket.emit("typing");
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(stopTyping, 2000);
 }
 
-socket.on("typing", showTyping);
+function stopTyping() {
+  socket.emit("stopTyping");
+}
 
-socket.on("message", (msg) => {
+function updateChat(messages) {
+  const chatBox = document.getElementById("chat-box");
+  chatBox.innerHTML = "";
+  messages.forEach(addMessage);
+  scrollChatToBottom();
+}
+
+function addMessage(msg) {
   const div = document.createElement("div");
-  div.classList.add("message");
-  div.classList.add(msg.from === myName ? "user" : "other");
+  div.className = `msg ${msg.sender === currentUser ? "right" : "left"}`;
+  div.innerHTML = `<div>${msg.replyTo ? `<i>Replying: ${msg.replyTo}</i><br>` : ""}${msg.text}</div><small>${msg.sender}${msg.seen ? " ✓✓" : " ✓"}</small>`;
+  div.ondblclick = () => setReply(msg.text);
+  div.oncontextmenu = (e) => {
+    e.preventDefault();
+    if (msg.sender === currentUser) {
+      div.remove(); // local delete only for now
+    }
+  };
+  document.getElementById("chat-box").appendChild(div);
+}
 
-  if (msg.replyTo) {
-    const reply = document.createElement("div");
-    reply.classList.add("reply");
-    reply.innerText = "Reply to: " + msg.replyTo;
-    div.appendChild(reply);
-  }
+function setReply(text) {
+  replyTo = text;
+  const replyBox = document.getElementById("reply-box");
+  replyBox.style.display = "block";
+  replyBox.textContent = `Replying to: ${text}`;
+}
 
-  const content = document.createElement("div");
-  content.innerText = msg.text;
-  content.ondblclick = () => { replyTo = msg.text; };
-  div.appendChild(content);
-
-  const seen = document.createElement("div");
-  seen.className = "status";
-  seen.innerText = msg.from === myName ? "✓✓ Seen" : "✓ Delivered";
-  div.appendChild(seen);
-
-  document.getElementById("chatBox").appendChild(div);
-  document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
-});
+function scrollChatToBottom() {
+  const chatBox = document.getElementById("chat-box");
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
