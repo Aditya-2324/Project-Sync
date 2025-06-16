@@ -1,36 +1,74 @@
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+const app = express();
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 const path = require("path");
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
+const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, "..", "public")));
 
+const users = {
+  user: { password: "1234", online: false, socketId: null },
+  project: { password: "5678", online: false, socketId: null }
+};
+
+let chatHistory = [];
+
 io.on("connection", (socket) => {
-  console.log("User connected");
+  let currentUser = null;
 
-  socket.on("user-connected", (user) => {
-    socket.username = user;
+  socket.on("login", ({ username, password }) => {
+    if (users[username] && users[username].password === password) {
+      currentUser = username;
+      users[username].online = true;
+      users[username].socketId = socket.id;
+
+      socket.emit("loginSuccess", { username, chatHistory });
+      io.emit("updateUsers", getUserStatus());
+    } else {
+      socket.emit("loginFailed");
+    }
   });
 
-  socket.on("typing", (name) => {
-    socket.broadcast.emit("typing", name);
-    setTimeout(() => {
-      socket.broadcast.emit("typing", "");
-    }, 1000);
+  socket.on("sendMessage", (msg) => {
+    const message = {
+      sender: currentUser,
+      text: msg.text,
+      replyTo: msg.replyTo || null,
+      seen: false
+    };
+    chatHistory.push(message);
+    io.emit("newMessage", message);
   });
 
-  socket.on("message", (msg) => {
-    io.emit("message", msg);
+  socket.on("markSeen", () => {
+    chatHistory.forEach((msg) => {
+      if (msg.sender !== currentUser) msg.seen = true;
+    });
+    io.emit("chatHistory", chatHistory);
+  });
+
+  socket.on("typing", () => {
+    if (currentUser) socket.broadcast.emit("typing", currentUser);
+  });
+
+  socket.on("stopTyping", () => {
+    if (currentUser) socket.broadcast.emit("stopTyping");
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    if (currentUser) {
+      users[currentUser].online = false;
+      users[currentUser].socketId = null;
+      io.emit("updateUsers", getUserStatus());
+    }
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+function getUserStatus() {
+  return Object.fromEntries(Object.entries(users).map(([u, d]) => [u, d.online]));
+}
+
+http.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
