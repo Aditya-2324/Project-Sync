@@ -1,76 +1,160 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f0f0f0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+import { useState, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+
+const socket = io();
+
+export default function ChatApp() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [replyTo, setReplyTo] = useState(null);
+  const [typingStatus, setTypingStatus] = useState("");
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    socket.on("loginSuccess", ({ username, chatHistory }) => {
+      setLoggedIn(true);
+      setMessages(chatHistory);
+    });
+
+    socket.on("loginFailed", () => alert("Invalid credentials"));
+
+    socket.on("newMessage", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    socket.on("typing", (user) => {
+      setTypingStatus(`${user} is typing...`);
+    });
+
+    socket.on("stopTyping", () => setTypingStatus(""));
+
+    return () => {
+      socket.off();
+    };
+  }, []);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleLogin = () => {
+    socket.emit("login", { username, password });
+  };
+
+  const handleSend = () => {
+    if (!message.trim()) return;
+    socket.emit("sendMessage", { text: message, replyTo });
+    setMessage("");
+    setReplyTo(null);
+  };
+
+  const handleTyping = () => {
+    socket.emit("typing");
+    setTimeout(() => socket.emit("stopTyping"), 1000);
+  };
+
+  const handleReply = (msg) => {
+    setReplyTo(msg);
+  };
+
+  const handleDelete = (index) => {
+    socket.emit("deleteMessage", index);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      {!loggedIn ? (
+        <div className="w-full max-w-md p-6 bg-white rounded shadow">
+          <h2 className="text-xl font-semibold mb-4">Login</h2>
+          <input
+            className="w-full mb-2 p-2 border rounded"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            type="password"
+            className="w-full mb-2 p-2 border rounded"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            className="w-full p-2 bg-blue-500 text-white rounded"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        </div>
+      ) : (
+        <div className="w-full max-w-2xl flex flex-col h-[90vh] bg-white rounded shadow overflow-hidden">
+          <div className="flex-1 p-4 overflow-y-auto">
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`mb-2 p-3 rounded-lg max-w-[80%] text-sm relative ${
+                  msg.sender === username ? "bg-blue-100 self-end" : "bg-gray-200 self-start"
+                }`}
+              >
+                {msg.replyTo && (
+                  <div className="text-xs text-gray-500 mb-1">
+                    Replying to: {msg.replyTo.text}
+                  </div>
+                )}
+                <div>{msg.text}</div>
+                <div className="flex justify-between mt-1 text-xs text-gray-500">
+                  <span>{msg.sender}</span>
+                  {msg.sender === username && (
+                    <button
+                      className="text-red-400 ml-2"
+                      onClick={() => handleDelete(i)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleReply(msg)}
+                  className="absolute top-0 right-0 text-xs text-gray-500"
+                >
+                  ↩
+                </button>
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+
+          {replyTo && (
+            <div className="p-2 bg-yellow-100 text-sm">
+              Replying to: {replyTo.text}
+              <button onClick={() => setReplyTo(null)} className="ml-2 text-red-400">
+                Cancel
+              </button>
+            </div>
+          )}
+
+          <div className="p-2 border-t flex">
+            <input
+              className="flex-1 border p-2 rounded"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onInput={handleTyping}
+              placeholder="Type a message..."
+            />
+            <button onClick={handleSend} className="ml-2 bg-green-500 text-white px-4 py-2 rounded">
+              Send
+            </button>
+          </div>
+
+          {typingStatus && (
+            <div className="px-4 py-1 text-sm text-gray-500">{typingStatus}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
-#chat-container {
-  background: white;
-  width: 90%;
-  max-width: 600px;
-  height: 90vh;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-#chat-box {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-}
-
-.message {
-  margin: 5px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  max-width: 70%;
-}
-
-.sent {
-  background: #DCF8C6;
-  align-self: flex-end;
-}
-
-.received {
-  background: #FFF;
-  align-self: flex-start;
-  border: 1px solid #ddd;
-}
-
-#typing {
-  padding: 5px 10px;
-  font-size: 0.9em;
-  color: #999;
-}
-
-form {
-  display: flex;
-  padding: 10px;
-  border-top: 1px solid #ddd;
-}
-
-input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 20px;
-  outline: none;
-  font-size: 16px;
-}
-
-button {
-  background: #25D366;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 20px;
-  margin-left: 10px;
-  cursor: pointer;
-}
