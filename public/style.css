@@ -10,32 +10,30 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    /* Important: Make HTML/Body full height and allow scrolling */
+    height: 100%; /* Use 100% for body/html to allow native scrolling */
     width: 100%;
     background: #f7f7f8;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 18px; /* Increased base font size AGAIN for better mobile readability */
+    font-size: 18px; /* Increased base font size */
     color: #333;
+    overflow-y: auto; /* Enable scrolling for the entire body */
+    overscroll-behavior-y: contain; /* Prevents bounce scroll on some Androids */
 }
 
-/* Page Containers */
+/* This is the overall app container - it will be flexible */
 #chat-page, #login-page {
-    width: 100vw;
-    /* Use dynamic viewport height properties for better mobile compatibility */
-    height: 100dvh; /* Modern, preferred way. Accounts for dynamic toolbars/keyboard. */
-    height: 100vh; /* Fallback */
-    height: -webkit-fill-available; /* For older webkit (e.g., some Android browsers) */
-    height: fill-available; /* Standard for fill-available */
-
+    min-height: 100%; /* Ensure it's at least full viewport height */
+    width: 100%;
     display: flex;
     flex-direction: column;
     background: white;
-    overflow: hidden;
+    /* Remove overflow: hidden here as body handles it */
 }
 
-/* Login Page Specifics */
+/* Login Page (no major change needed here for layout) */
 #login-page {
     align-items: center;
     justify-content: center;
@@ -45,7 +43,7 @@ html, body {
 
 .login-container {
     background: #ffffff;
-    padding: 35px; /* More padding */
+    padding: 35px;
     border-radius: 12px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     width: 90%;
@@ -56,15 +54,15 @@ html, body {
 }
 
 #login-page h2 {
-    margin-bottom: 30px; /* More space */
+    margin-bottom: 30px;
     color: #333;
-    font-size: 2.4em; /* Even larger title */
+    font-size: 2.4em;
     font-weight: 600;
 }
 
 #login-page input {
-    margin: 15px 0; /* More margin */
-    padding: 16px; /* Increased padding */
+    margin: 15px 0;
+    padding: 16px;
     width: 100%;
     border-radius: 10px;
     border: 1px solid #c0c0c0;
@@ -72,8 +70,8 @@ html, body {
 }
 
 #login-page button {
-    margin-top: 30px; /* More space */
-    padding: 16px 30px; /* Increased padding */
+    margin-top: 30px;
+    padding: 16px 30px;
     width: 100%;
     border-radius: 30px;
     background: #10a37f;
@@ -103,40 +101,42 @@ html, body {
 }
 
 /* Chat Page Specifics */
+/* This outer container remains flexible */
 .chat-container {
+    flex: 1; /* Makes it take available space within chat-page */
     display: flex;
     flex-direction: column;
-    flex: 1;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
+    max-width: 800px; /* Still apply max-width for desktop */
+    width: 100%; /* Full width on mobile */
+    margin: 0 auto; /* Center it */
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
 }
 
-/* New Header Wrapper */
+/* Header - now part of the normal flow */
 #header {
     display: flex;
-    justify-content: space-between; /* Space between status and button */
+    justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
     background: #2c3e50;
     color: white;
     min-height: 60px;
     border-bottom: 1px solid #1a2732;
-    box-sizing: border-box; /* Include padding in height */
+    box-sizing: border-box;
+    /* Not fixed anymore, it scrolls with the content */
 }
 
 #online-status {
-    flex-grow: 1; /* Allows it to take available space */
+    flex-grow: 1;
     font-size: 1.15em;
     font-weight: 600;
-    text-align: left; /* Align to left */
-    margin-right: 15px; /* Space from button */
+    text-align: left;
+    margin-right: 15px;
 }
 
 #clear-chat-btn {
     padding: 8px 15px;
-    background-color: #dc3545; /* Red for delete */
+    background-color: #dc3545;
     color: white;
     border-radius: 6px;
     font-size: 0.9em;
@@ -154,25 +154,26 @@ html, body {
     transform: translateY(1px);
 }
 
-/* Chat Box (Messages Area) */
+/* Chat Box (Messages Area) - now just a container for messages */
 #chat-box {
-    flex: 1;
-    overflow-y: auto;
+    /* No longer flex: 1 and overflow-y: auto here */
     padding: 15px;
     background: #e5ddd5;
     display: flex;
     flex-direction: column;
-    -webkit-overflow-scrolling: touch;
+    /* This will push messages up as they come */
+    flex-grow: 1; /* Allows it to expand */
+    justify-content: flex-end; /* Push messages to the bottom */
 }
 
-/* Individual Message Styles */
+/* Individual Message Styles (no change here) */
 .msg {
     max-width: 85%;
-    padding: 14px 18px; /* Increased padding inside bubbles */
-    border-radius: 22px; /* More rounded bubbles */
+    padding: 14px 18px;
+    border-radius: 22px;
     position: relative;
-    font-size: 1.05em; /* Main message text size */
-    margin: 8px 0; /* More vertical margin */
+    font-size: 1.05em;
+    margin: 8px 0;
     word-wrap: break-word;
     word-break: break-word;
     line-height: 1.4;
@@ -184,33 +185,33 @@ html, body {
 .msg.left {
     align-self: flex-start;
     background: #ffffff;
-    border-top-left-radius: 8px; /* Adjusted radius */
+    border-top-left-radius: 8px;
 }
 
 .msg.right {
     align-self: flex-end;
     background: #dcf8c6;
-    border-top-right-radius: 8px; /* Adjusted radius */
+    border-top-right-radius: 8px;
 }
 
 .msg small {
     display: block;
     text-align: right;
-    font-size: 0.75em; /* Smaller, relative to message font size */
+    font-size: 0.75em;
     color: #666;
     margin-top: 5px;
     line-height: 1;
     opacity: 0.9;
 }
 
-/* Reply Quote inside message bubble */
+/* Reply Quote inside message bubble (no change) */
 .reply-quote {
-    background-color: rgba(0, 0, 0, 0.05); /* Slightly darker background */
-    border-left: 3px solid #007bff; /* Blue line */
+    background-color: rgba(0, 0, 0, 0.05);
+    border-left: 3px solid #007bff;
     padding: 5px 8px;
-    margin-bottom: 8px; /* Space between quote and message text */
+    margin-bottom: 8px;
     border-radius: 4px;
-    font-size: 0.85em; /* Smaller text for quote */
+    font-size: 0.85em;
     color: #555;
     white-space: nowrap;
     overflow: hidden;
@@ -229,7 +230,7 @@ html, body {
     border-left: 4px solid #007bff;
     font-size: 1em;
     color: #444;
-    margin: 0 15px 10px 15px; /* Margin to align with chat box padding */
+    margin: 0 15px 0 15px; /* Adjust margin here, will be part of scrollable content */
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
@@ -259,7 +260,7 @@ html, body {
     color: #333;
 }
 
-/* Input Area */
+/* Input Area - Now position fixed at the bottom */
 #input-area {
     display: flex;
     align-items: flex-end;
@@ -267,18 +268,26 @@ html, body {
     background: #f0f0f0;
     border-top: 1px solid #ddd;
     box-sizing: border-box;
+    /* NEW: Fixed position at the bottom */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Take full width */
+    z-index: 100; /* Ensure it's on top */
+    /* Add padding-bottom for iOS Safe Area */
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 #message {
     flex: 1;
-    padding: 14px 18px; /* Increased padding inside textarea */
-    border-radius: 28px; /* More rounded */
+    padding: 14px 18px;
+    border-radius: 28px;
     border: 1px solid #ccc;
-    font-size: 1.05em; /* CRITICAL: Ensures good size for mobile input without zoom */
+    font-size: 1.05em;
     outline: none;
     resize: none;
-    min-height: 48px; /* Ensure minimum height for touch target */
-    max-height: 160px; /* Prevent it from growing too large */
+    min-height: 48px;
+    max-height: 160px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -286,7 +295,7 @@ html, body {
 /* Send Button */
 #input-area button {
     margin-left: 10px;
-    padding: 14px 22px; /* Generous padding for easier tap */
+    padding: 14px 22px;
     border-radius: 28px;
     background: #10a37f;
     color: white;
@@ -306,20 +315,18 @@ html, body {
     transform: translateY(2px);
 }
 
-/* Typing Status Indicator */
+/* Typing Status Indicator - now part of the content that scrolls */
 #typing-status {
-    padding: 8px 15px; /* Increased padding */
+    padding: 8px 15px;
     font-size: 0.9em;
     color: #777;
-    min-height: 35px; /* More space to prevent layout jumps */
+    min-height: 35px;
     text-align: center;
+    /* Add margin-bottom to make space for the fixed input area */
+    margin-bottom: 70px; /* Adjust this value based on your input area height */
 }
 
-/* --- No more individual message selection for deletion, simplifying UI --- */
-/* You can remove .msg.selected-message and #delete-selected-btn styles if not used */
-/* If you still want long-press to eventually implement single delete, keep them as conceptual */
-
-/* --- Styles for Swipe to Reply --- */
+/* Styles for Swipe to Reply (no change) */
 .msg.swiped-for-reply {
     transform: translateX(60px);
 }
