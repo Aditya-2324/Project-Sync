@@ -22,11 +22,28 @@ socket.on("loginFailed", () => {
 });
 
 socket.on("newMessage", (msg) => {
-  addMessage(msg);
-  if (msg.sender !== currentUser) socket.emit("markSeen");
+    addMessage(msg);
+    // Only mark seen if the message is from the other user AND they are currently focused
+    // You might want to debounce this or only mark the *last* message seen.
+    if (msg.sender !== currentUser) {
+        socket.emit("markSeen", msg.timestamp); // Emit the timestamp of the message that was seen
+    }
 });
 
-socket.on("chatHistory", updateChat);
+// New event listener for specific message updates (e.g., seen status)
+socket.on('messagesUpdated', (updatedMessages) => {
+    updatedMessages.forEach(update => {
+        const msgDiv = document.querySelector(`[data-timestamp="${update.timestamp}"]`);
+        if (msgDiv) {
+            const smallTag = msgDiv.querySelector('small');
+            if (smallTag) {
+                smallTag.textContent = update.seen ? "✓✓" : "✓";
+            }
+        }
+    });
+});
+
+socket.on('chatHistory', updateChat); // Keep this for initial load or full history syncs if needed
 
 socket.on("updateUsers", (users) => {
   const other = Object.keys(users).find(u => u !== currentUser);
