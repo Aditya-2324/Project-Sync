@@ -76,20 +76,22 @@ html, body {
 #input-area {
   display: flex;
   padding: 10px;
+  background: #fff;
   border-top: 1px solid #ddd;
 }
 
 #message {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border-radius: 20px;
   border: 1px solid #ccc;
   font-size: 16px;
+  outline: none;
 }
 
 button {
   margin-left: 10px;
-  padding: 10px 14px;
+  padding: 10px 16px;
   border-radius: 20px;
   background: #10a37f;
   color: white;
@@ -97,6 +99,7 @@ button {
   font-weight: bold;
   cursor: pointer;
 }
+
 
 #reply-box {
   display: none;
