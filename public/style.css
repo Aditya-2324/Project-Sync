@@ -24,13 +24,17 @@ html, body {
 /* Page Containers */
 #chat-page, #login-page {
     width: 100vw;
-    height: 100vh;
+    /* Use dynamic viewport height properties for better mobile compatibility */
+    height: 100dvh; /* Modern, preferred way. Accounts for dynamic toolbars. */
+    height: 100vh; /* Fallback for older browsers */
+    height: -webkit-fill-available; /* For older webkit (e.g., some Android browsers) */
+    height: fill-available; /* Standard for fill-available */
+
     display: flex;
     flex-direction: column;
-    background: white; /* White background for the app */
-    overflow: hidden; /* Prevent overall page scroll */
+    background: white;
+    overflow: hidden;
 }
-
 /* Login Page Specifics */
 #login-page {
     align-items: center;
