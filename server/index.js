@@ -3,11 +3,11 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
-const bcrypt = require('bcryptjs'); // <<< ADD THIS LINE for password hashing
+const bcrypt = require('bcryptjs');
 
 const PORT = process.env.PORT || 3000;
 
-// Correct static file path for the 'public' folder (adjust if your structure is different)
+// Correct static file path for the 'public' folder
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // IMPORTANT: In a real production app, these hashes would be generated securely (e.g., during registration)
@@ -32,9 +32,6 @@ io.on('connection', (socket) => {
                     return;
                 }
                 if (result) { // Passwords match
-                    // If the user is already online with a different socket,
-                    // you might want to disconnect the old one or block new login.
-                    // For this 1:1 simple chat, we'll just update the socketId.
                     if (users[username].online && users[username].socketId && users[username].socketId !== socket.id) {
                         console.log(`${username} re-logged in from a new session, disconnecting old one if active.`);
                         // Optional: Disconnect previous session if you want only one active session per user
@@ -86,16 +83,10 @@ io.on('connection', (socket) => {
         };
         chatHistory.push(message);
 
-        // Optional: Implement a fixed-size history if memory becomes a concern for long-running servers
-        // const MAX_HISTORY_MESSAGES = 200; // Example: keep only last 200 messages
-        // if (chatHistory.length > MAX_HISTORY_MESSAGES) {
-        //     chatHistory.shift(); // Remove the oldest message
-        // }
         console.log(`Message from ${message.sender}: "${message.text}" (Reply to: ${message.replyTo})`);
         io.emit('newMessage', message); // Emit new message to all connected clients
     });
 
-    // Modified markSeen to be more efficient, only updating specific messages
     socket.on('markSeen', (timestamp) => {
         if (!currentUser) return;
 
@@ -109,34 +100,24 @@ io.on('connection', (socket) => {
         }
 
         if (updatedMessages.length > 0) {
-            // Emit a specific event for updates to all clients, not the whole history
             io.emit('messagesUpdated', updatedMessages);
         }
     });
 
-
-    // Modified deleteMessage for security and efficiency
-    socket.on('deleteMessage', (timestamp) => {
+    // NEW: Clear Chat Event Handler
+    socket.on('clearChat', () => {
         if (!currentUser) {
-            console.warn("Attempt to delete message by unauthenticated user.");
+            console.warn("Attempt to clear chat by unauthenticated user.");
             return;
         }
-
-        const initialLength = chatHistory.length;
-        // Find the message to delete and ensure the current user is the sender
-        const messageToDeleteIndex = chatHistory.findIndex(msg => msg.timestamp === timestamp && msg.sender === currentUser);
-
-        if (messageToDeleteIndex > -1) {
-            chatHistory.splice(messageToDeleteIndex, 1); // Remove the message
-            console.log(`Message with timestamp ${timestamp} deleted by ${currentUser}.`);
-            io.emit('messageDeleted', timestamp); // Tell clients which message to remove
-        } else {
-            console.warn(`Deletion attempt for timestamp ${timestamp} failed by ${currentUser}. Message not found or not owned by sender.`);
-        }
+        console.log(`${currentUser} cleared the chat history.`);
+        chatHistory = []; // Clear the entire chat history
+        io.emit('chatCleared'); // Inform all clients that the chat has been cleared
     });
 
+    // Removed 'deleteMessage' handler as it's replaced by 'clearChat'
+
     socket.on('disconnect', () => {
-        // Only update user status if this socket was the one assigned to the user
         if (currentUser && users[currentUser] && users[currentUser].socketId === socket.id) {
             users[currentUser].online = false;
             users[currentUser].socketId = null;
