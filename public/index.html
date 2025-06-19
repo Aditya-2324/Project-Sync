@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Project Sync Chat</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=7" />
   <script defer src="/socket.io/socket.io.js"></script>
   <script defer src="client.js"></script>
 </head>
@@ -21,8 +21,10 @@
 
   <div id="chat-page" style="display: none">
     <div class="chat-container">
-      <div id="online-status"></div>
-      <button id="delete-selected-btn" style="display:none;">🗑 Delete Selected</button>
+      <div id="header"> <span id="online-status"></span>
+        <button id="clear-chat-btn">Clear Chat</button>
+      </div>
+
       <div id="chat-box"></div>
       <div id="reply-box" style="display: none;">
         Replying to: <span id="reply-text"></span>
