@@ -3,10 +3,7 @@ const socket = io();
 let currentUser = null;
 let chatHistory = [];
 let replyTo = null; // Stores the text being replied to
-let longPressTimeout;
-let selectedMessages = new Set(); // To store timestamps of selected messages
-
-const longPressDuration = 500; // ms
+// Removed longPressTimeout and selectedMessages as we're doing "clear all"
 
 // DOM Elements
 const loginPage = document.getElementById("login-page");
@@ -21,7 +18,7 @@ const typingStatus = document.getElementById("typing-status");
 const replyBox = document.getElementById("reply-box");
 const replyText = document.getElementById("reply-text");
 const cancelReplyBtn = document.getElementById("cancel-reply");
-const deleteSelectedBtn = document.getElementById("delete-selected-btn");
+const clearChatBtn = document.getElementById("clear-chat-btn"); // NEW: Clear Chat Button
 
 // --- Login Logic ---
 function login() {
@@ -39,9 +36,11 @@ socket.on("loginSuccess", (data) => {
     chatHistory = data.chatHistory;
     loginPage.style.display = "none";
     chatPage.style.display = "flex";
-    onlineStatus.textContent = `Welcome, ${currentUser}!`;
+    onlineStatus.textContent = `Welcome, ${currentUser}!`; // Initial status
     updateChat(chatHistory); // Display initial chat history
+    
     // Mark all other users' messages as seen when current user logs in
+    // This happens only once on initial load for messages already in history
     chatHistory.forEach(msg => {
         if (msg.sender !== currentUser && !msg.seen) {
             socket.emit("markSeen", msg.timestamp);
@@ -144,17 +143,12 @@ socket.on('messagesUpdated', (updatedMessages) => {
     });
 });
 
-
-// Remove a message from UI and local history
-socket.on("messageDeleted", (timestamp) => {
-    chatHistory = chatHistory.filter(msg => msg.timestamp !== timestamp); // Update local history
-    const msgDivToRemove = document.querySelector(`[data-timestamp="${timestamp}"]`);
-    if (msgDivToRemove) {
-        msgDivToRemove.remove(); // Remove from DOM
-    }
-    // If deleted message was selected, unselect it
-    selectedMessages.delete(timestamp);
-    updateDeleteButtonVisibility();
+// NEW: Handle server-side chat clear
+socket.on('chatCleared', () => {
+    chatHistory = []; // Clear local history
+    chatBox.innerHTML = ""; // Clear messages from UI
+    typingStatus.textContent = "Chat history cleared.";
+    setTimeout(() => typingStatus.textContent = "", 3000);
 });
 
 // Full chat history update (for initial load)
@@ -164,7 +158,7 @@ function updateChat(history) {
     chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
 }
 
-// --- Message Display and Interaction ---
+// --- Message Display and Interaction (Simplified for Swipe-to-Reply only) ---
 function addMessage(msg) {
     const msgDiv = document.createElement("div");
     msgDiv.className = msg.sender === currentUser ? "msg right" : "msg left";
@@ -186,29 +180,19 @@ function addMessage(msg) {
     `;
     msgDiv.appendChild(textContentDiv);
 
-    // --- Message Interaction (Long-press to select, Swipe to reply) ---
+    // --- Message Interaction (Swipe to reply only, removed long-press for simplicity) ---
     let startX = 0;
     let startY = 0;
     let isSwiping = false;
     const swipeThreshold = 50; // Pixels to confirm swipe for reply
 
+    // Touch events for mobile
     msgDiv.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         isSwiping = false;
-
-        // Start long-press timer only if no messages are selected
-        if (selectedMessages.size === 0) {
-            longPressTimeout = setTimeout(() => {
-                // If it's a long press and not a swipe, toggle selection
-                if (!isSwiping) {
-                    toggleMessageSelection(msgDiv, msg.timestamp);
-                }
-            }, longPressDuration);
-        }
-        // Prevent default browser behavior like context menu on long-press
-        e.preventDefault();
-    }, { passive: false }); // passive: false for preventDefault
+        msgDiv.style.transition = ''; // Remove transition during touchmove for instant response
+    }, { passive: false });
 
     msgDiv.addEventListener('touchmove', (e) => {
         const currentX = e.touches[0].clientX;
@@ -216,22 +200,16 @@ function addMessage(msg) {
         const deltaX = currentX - startX;
         const deltaY = currentY - startY;
 
-        // If a long press timer is active, clear it if movement is detected
-        if (longPressTimeout) {
-            clearTimeout(longPressTimeout);
-        }
-
         // Detect if movement is primarily horizontal (for swipe)
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) { // Small threshold to start detecting swipe
             isSwiping = true;
             e.preventDefault(); // Prevent page scroll when swiping horizontally
             
             // Clamp swipe distance for visual effect
-            let clampedDeltaX = Math.min(Math.max(0, deltaX), 60); // Swipe right only, max 60px
+            let clampedDeltaX = Math.min(Math.max(0, deltaX), 60); // Swipe right only for others
             if (msg.sender === currentUser) { // Allow swipe left for own messages
                  clampedDeltaX = Math.max(-60, Math.min(0, deltaX));
             }
-
             msgDiv.style.transform = `translateX(${clampedDeltaX}px)`;
         } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
              // If primarily vertical, it's a scroll, so don't prevent default
@@ -242,13 +220,10 @@ function addMessage(msg) {
     }, { passive: false });
 
     msgDiv.addEventListener('touchend', () => {
-        if (longPressTimeout) {
-            clearTimeout(longPressTimeout);
-        }
+        msgDiv.style.transition = 'transform 0.2s ease-out'; // Re-add transition for snap back
 
-        // If it was a swipe (and not just a click/tap)
         if (isSwiping) {
-            const finalDeltaX = parseInt(msgDiv.style.transform.replace('translateX(', '').replace('px)', ''));
+            const finalDeltaX = parseFloat(msgDiv.style.transform.replace('translateX(', '').replace('px)', ''));
             if (Math.abs(finalDeltaX) >= swipeThreshold) {
                 // Trigger reply action
                 startReply(msg);
@@ -256,16 +231,6 @@ function addMessage(msg) {
             // Snap back the message bubble
             msgDiv.style.transform = `translateX(0px)`;
             isSwiping = false;
-        } else {
-            // If it wasn't a swipe or long-press, it's a regular tap
-            if (selectedMessages.size > 0) {
-                // If messages are already selected, a tap toggles selection
-                toggleMessageSelection(msgDiv, msg.timestamp);
-            } else {
-                // If no messages are selected, a tap could be a quick reply or just viewing
-                // For now, let's keep dblclick for explicit reply, or remove it entirely
-                // msgDiv.dispatchEvent(new Event('dblclick')); // Re-trigger dblclick if you want single tap for quick reply
-            }
         }
     });
 
@@ -277,13 +242,7 @@ function addMessage(msg) {
         mouseDown = true;
         mouseStartX = e.clientX;
         mouseStartY = e.clientY;
-        if (selectedMessages.size === 0) {
-            longPressTimeout = setTimeout(() => {
-                if (mouseDown) { // Still holding mouse down
-                    toggleMessageSelection(msgDiv, msg.timestamp);
-                }
-            }, longPressDuration);
-        }
+        msgDiv.style.transition = ''; // Remove transition during mousemove
         e.preventDefault(); // Prevent text selection
     });
 
@@ -294,14 +253,10 @@ function addMessage(msg) {
         const deltaX = currentX - mouseStartX;
         const deltaY = currentY - mouseStartY;
 
-        if (longPressTimeout) {
-            clearTimeout(longPressTimeout);
-        }
-
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 5) { // Smaller threshold for mouse swipe
             isSwiping = true;
             let clampedDeltaX = Math.min(Math.max(0, deltaX), 60);
-             if (msg.sender === currentUser) { // Allow swipe left for own messages
+            if (msg.sender === currentUser) {
                  clampedDeltaX = Math.max(-60, Math.min(0, deltaX));
             }
             msgDiv.style.transform = `translateX(${clampedDeltaX}px)`;
@@ -312,33 +267,20 @@ function addMessage(msg) {
     });
 
     msgDiv.addEventListener('mouseup', () => {
-        if (longPressTimeout) {
-            clearTimeout(longPressTimeout);
-        }
-        if (mouseDown) {
-            if (isSwiping) {
-                const finalDeltaX = parseInt(msgDiv.style.transform.replace('translateX(', '').replace('px)', ''));
-                if (Math.abs(finalDeltaX) >= swipeThreshold) {
-                    startReply(msg);
-                }
-                msgDiv.style.transform = `translateX(0px)`;
-            } else if (selectedMessages.size > 0) {
-                 toggleMessageSelection(msgDiv, msg.timestamp);
+        msgDiv.style.transition = 'transform 0.2s ease-out'; // Re-add transition
+        if (mouseDown && isSwiping) {
+            const finalDeltaX = parseFloat(msgDiv.style.transform.replace('translateX(', '').replace('px)', ''));
+            if (Math.abs(finalDeltaX) >= swipeThreshold) {
+                startReply(msg);
             }
+            msgDiv.style.transform = `translateX(0px)`;
         }
         mouseDown = false;
         isSwiping = false;
     });
 
-    // Cancel long press if mouse leaves the element
-    msgDiv.addEventListener('mouseleave', () => {
-        if (mouseDown && !isSwiping && longPressTimeout) {
-            clearTimeout(longPressTimeout);
-        }
-    });
-
     chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight; // Keep this for new messages
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 // --- Reply Feature ---
@@ -355,37 +297,10 @@ cancelReplyBtn.addEventListener("click", () => {
     replyBox.style.display = "none";
 });
 
-// --- Message Selection & Deletion ---
-function toggleMessageSelection(msgDiv, timestamp) {
-    if (msgDiv.classList.contains('selected-message')) {
-        msgDiv.classList.remove('selected-message');
-        selectedMessages.delete(timestamp);
-    } else {
-        // Only allow selection of your own messages for deletion
-        const msg = chatHistory.find(m => m.timestamp === timestamp);
-        if (msg && msg.sender === currentUser) {
-            msgDiv.classList.add('selected-message');
-            selectedMessages.add(timestamp);
-        }
-    }
-    updateDeleteButtonVisibility();
-}
-
-function updateDeleteButtonVisibility() {
-    if (selectedMessages.size > 0) {
-        deleteSelectedBtn.style.display = "block";
-    } else {
-        deleteSelectedBtn.style.display = "none";
-    }
-}
-
-deleteSelectedBtn.addEventListener("click", () => {
-    if (confirm(`Are you sure you want to delete ${selectedMessages.size} selected message(s)?`)) {
-        selectedMessages.forEach(timestamp => {
-            socket.emit("deleteMessage", timestamp);
-        });
-        selectedMessages.clear(); // Clear selection after emitting delete requests
-        updateDeleteButtonVisibility();
+// --- NEW: Clear Chat Functionality ---
+clearChatBtn.addEventListener("click", () => {
+    if (confirm("Are you sure you want to clear ALL chat messages? This cannot be undone.")) {
+        socket.emit("clearChat");
     }
 });
 
@@ -396,7 +311,8 @@ messageInput.addEventListener("input", function() {
     typing(); // Call your typing function
 });
 
-messageInput.addEventListener("blur", stopTyping); // Add blur listener
+messageInput.addEventListener("blur", stopTyping);
+
 messageInput.addEventListener("focus", () => {
     // Scroll to bottom when input is focused if it's not already at the very bottom
     // This helps with the virtual keyboard
