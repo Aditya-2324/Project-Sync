@@ -50,38 +50,43 @@ function updateChat(messages) {
 }
 
 function addMessage(msg) {
-  const msgDiv = document.createElement("div");
-  msgDiv.className = msg.sender === currentUser ? "msg right" : "msg left";
+    const msgDiv = document.createElement("div");
+    msgDiv.className = msg.sender === currentUser ? "msg right" : "msg left";
+    msgDiv.setAttribute("data-timestamp", msg.timestamp); // <<< ADD THIS LINE
 
-  if (msg.replyTo) {
-    const replyDiv = document.createElement("div");
-    replyDiv.className = "reply";
-    replyDiv.textContent = "Reply to: " + msg.replyTo;
-    msgDiv.appendChild(replyDiv);
-  }
+    if (msg.replyTo) {
+        const replyDiv = document.createElement("div");
+        replyDiv.className = "reply";
+        replyDiv.textContent = "Reply to: " + msg.replyTo;
+        msgDiv.appendChild(replyDiv);
+    }
 
-  const textDiv = document.createElement("div");
-  textDiv.innerHTML = `
-    ${msg.text}
-    <small>${msg.seen ? "✓✓" : "✓"}</small>
-  `;
-  msgDiv.appendChild(textDiv);
+    const textDiv = document.createElement("div");
+    // Update the seen indicator logic slightly if you always want '✓' even if not seen by self
+    // If msg.sender === currentUser, maybe always show '✓✓' regardless of msg.seen from server perspective
+    textDiv.innerHTML = `
+        ${msg.text}
+        <small>${msg.seen ? "✓✓" : "✓"}</small>
+    `;
+    msgDiv.appendChild(textDiv);
 
-  if (msg.sender === currentUser) {
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑";
-    deleteBtn.style.float = "right";
-    deleteBtn.onclick = () => socket.emit("deleteMessage", msg.timestamp);
-    msgDiv.appendChild(deleteBtn);
-  }
+    if (msg.sender === currentUser) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "🗑";
+        deleteBtn.style.float = "right"; // Keep this for now, but consider CSS placement
+        deleteBtn.onclick = () => socket.emit("deleteMessage", msg.timestamp);
+        msgDiv.appendChild(deleteBtn);
+    }
 
-  msgDiv.addEventListener("dblclick", () => {
-    replyTo = msg.text;
-    document.getElementById("reply-box").textContent = "Replying to: " + msg.text;
-    document.getElementById("reply-box").style.display = "block";
-  });
+    msgDiv.addEventListener("dblclick", () => {
+        replyTo = msg.text; // Consider storing msg.sender and msg.timestamp for more precise replies
+        document.getElementById("reply-box").textContent = "Replying to: " + msg.text;
+        document.getElementById("reply-box").style.display = "block";
+    });
 
-  document.getElementById("chat-box").appendChild(msgDiv);
+    document.getElementById("chat-box").appendChild(msgDiv);
+    // Ensure scroll to bottom after adding new message if it's the current user or already at bottom
+    document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight; // <<< Add this here too
 }
 
 function sendMessage() {
