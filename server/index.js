@@ -7,27 +7,24 @@ const bcrypt = require('bcryptjs'); // <<< ADD THIS LINE for password hashing
 
 const PORT = process.env.PORT || 3000;
 
-// Correct static file path for the 'public' folder
+// Correct static file path for the 'public' folder (adjust if your structure is different)
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// IMPORTANT: HASH YOUR PASSWORDS (Example using bcryptjs)
-// In a real app, you'd generate these hashes securely,
-// not put them directly in code like this. This is for demonstration.
+// IMPORTANT: In a real production app, these hashes would be generated securely (e.g., during registration)
+// and stored in a database, NOT hardcoded. This is for demonstration of hashing.
 const saltRounds = 10;
 const users = {
     user: { passwordHash: bcrypt.hashSync('1234', saltRounds), online: false, socketId: null },
     project: { passwordHash: bcrypt.hashSync('5678', saltRounds), online: false, socketId: null }
 };
 
-
-let chatHistory = []; // In-memory chat history
+let chatHistory = []; // In-memory chat history (ephemeral)
 
 io.on('connection', (socket) => {
-    let currentUser = null;
+    let currentUser = null; // Track the logged-in user for this specific socket connection
 
     socket.on('login', ({ username, password }) => {
         if (users[username]) {
-            // Compare the provided password with the stored hash
             bcrypt.compare(password, users[username].passwordHash, (err, result) => {
                 if (err) {
                     console.error("Bcrypt comparison error:", err);
@@ -35,31 +32,34 @@ io.on('connection', (socket) => {
                     return;
                 }
                 if (result) { // Passwords match
-                    // Prevent multiple logins for the same user if they are already logged in elsewhere
-                    if (users[username].online) {
-                        // Optional: Disconnect the old socket if a new login occurs
-                        // if (users[username].socketId && io.sockets.sockets.get(users[username].socketId)) {
-                        //     io.sockets.sockets.get(users[username].socketId).disconnect(true);
+                    // If the user is already online with a different socket,
+                    // you might want to disconnect the old one or block new login.
+                    // For this 1:1 simple chat, we'll just update the socketId.
+                    if (users[username].online && users[username].socketId && users[username].socketId !== socket.id) {
+                        console.log(`${username} re-logged in from a new session, disconnecting old one if active.`);
+                        // Optional: Disconnect previous session if you want only one active session per user
+                        // const oldSocket = io.sockets.sockets.get(users[username].socketId);
+                        // if (oldSocket) {
+                        //     oldSocket.emit('forceLogout', 'You logged in from another device.');
+                        //     oldSocket.disconnect(true);
                         // }
-                        // Or simply deny the new login attempt with a specific message
-                        // socket.emit('loginFailed', 'User already logged in elsewhere.');
-                        // return;
-                        // For a 1:1 chat with only two users, let's allow re-login and update socketId
-                        console.log(`${username} re-logged in.`);
                     }
 
                     currentUser = username;
                     users[username].online = true;
-                    users[username].socketId = socket.id;
+                    users[username].socketId = socket.id; // Store current socket ID for this user
 
-                    socket.emit('loginSuccess', { username, chatHistory });
-                    io.emit('updateUsers', getUserStatus());
+                    socket.emit('loginSuccess', { username, chatHistory }); // Send current history
+                    io.emit('updateUsers', getUserStatus()); // Inform all clients about user status changes
+                    console.log(`${username} logged in. Socket ID: ${socket.id}`);
                 } else { // Passwords don't match
                     socket.emit('loginFailed');
+                    console.log(`Login failed for ${username}: Invalid password.`);
                 }
             });
         } else { // User not found
             socket.emit('loginFailed');
+            console.log(`Login failed: User ${username} not found.`);
         }
     });
 
@@ -72,74 +72,91 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendMessage', (msg) => {
-        if (!currentUser || !msg.text.trim()) return; // Basic validation
+        if (!currentUser || typeof msg.text !== 'string' || !msg.text.trim()) {
+            console.warn(`Invalid message attempt by ${currentUser || 'unknown'}:`, msg);
+            return; // Basic validation
+        }
 
         const message = {
             sender: currentUser,
             text: msg.text.trim(),
-            timestamp: Date.now(),
-            replyTo: msg.replyTo || null,
+            timestamp: Date.now(), // Unique ID for the message
+            replyTo: msg.replyTo || null, // Ensure replyTo is null if not provided
             seen: false // Will be marked seen by recipient
         };
         chatHistory.push(message);
 
-        // Optional: Implement the fixed-size history if memory becomes a concern
-        // const MAX_HISTORY_MESSAGES = 100; // Example
+        // Optional: Implement a fixed-size history if memory becomes a concern for long-running servers
+        // const MAX_HISTORY_MESSAGES = 200; // Example: keep only last 200 messages
         // if (chatHistory.length > MAX_HISTORY_MESSAGES) {
-        //     chatHistory.shift(); // Remove oldest message
+        //     chatHistory.shift(); // Remove the oldest message
         // }
-
+        console.log(`Message from ${message.sender}: "${message.text}" (Reply to: ${message.replyTo})`);
         io.emit('newMessage', message); // Emit new message to all connected clients
     });
 
-    // Modified markSeen to be more efficient
-    socket.on('markSeen', () => {
+    // Modified markSeen to be more efficient, only updating specific messages
+    socket.on('markSeen', (timestamp) => {
+        if (!currentUser) return;
+
         let updatedMessages = [];
-        chatHistory.forEach((msg) => {
-            if (msg.sender !== currentUser && !msg.seen) {
-                msg.seen = true;
-                updatedMessages.push({ timestamp: msg.timestamp, seen: true });
-            }
-        });
+        const message = chatHistory.find(msg => msg.timestamp === timestamp && msg.sender !== currentUser);
+
+        if (message && !message.seen) {
+            message.seen = true;
+            updatedMessages.push({ timestamp: message.timestamp, seen: true });
+            console.log(`Message ${timestamp} from ${message.sender} marked as seen by ${currentUser}.`);
+        }
+
         if (updatedMessages.length > 0) {
-            // Emit a specific event for updates, not the whole history
+            // Emit a specific event for updates to all clients, not the whole history
             io.emit('messagesUpdated', updatedMessages);
         }
     });
 
+
     // Modified deleteMessage for security and efficiency
     socket.on('deleteMessage', (timestamp) => {
-        if (!currentUser) return; // Must be logged in to delete
+        if (!currentUser) {
+            console.warn("Attempt to delete message by unauthenticated user.");
+            return;
+        }
 
         const initialLength = chatHistory.length;
-        // Filter out the message, ensuring only the sender can delete their own message
-        chatHistory = chatHistory.filter(msg => !(msg.timestamp === timestamp && msg.sender === currentUser));
+        // Find the message to delete and ensure the current user is the sender
+        const messageToDeleteIndex = chatHistory.findIndex(msg => msg.timestamp === timestamp && msg.sender === currentUser);
 
-        if (chatHistory.length < initialLength) { // A message was actually deleted
+        if (messageToDeleteIndex > -1) {
+            chatHistory.splice(messageToDeleteIndex, 1); // Remove the message
+            console.log(`Message with timestamp ${timestamp} deleted by ${currentUser}.`);
             io.emit('messageDeleted', timestamp); // Tell clients which message to remove
         } else {
-            console.warn(`Deletion attempt for timestamp ${timestamp} failed by ${currentUser}. Either not found or not owned.`);
+            console.warn(`Deletion attempt for timestamp ${timestamp} failed by ${currentUser}. Message not found or not owned by sender.`);
         }
     });
 
-
     socket.on('disconnect', () => {
-        if (currentUser && users[currentUser]) {
-            // Only set offline if this socket was the active one for the user
-            if (users[currentUser].socketId === socket.id) {
-                users[currentUser].online = false;
-                users[currentUser].socketId = null;
-                console.log(`${currentUser} disconnected.`);
-                io.emit('updateUsers', getUserStatus());
-            } else {
-                 console.log(`${currentUser} disconnected, but another session might be active.`);
-            }
+        // Only update user status if this socket was the one assigned to the user
+        if (currentUser && users[currentUser] && users[currentUser].socketId === socket.id) {
+            users[currentUser].online = false;
+            users[currentUser].socketId = null;
+            io.emit('updateUsers', getUserStatus());
+            console.log(`${currentUser} disconnected. Socket ID: ${socket.id}`);
+        } else if (currentUser) {
+             console.log(`${currentUser} disconnected from a non-primary session (or socketId mismatch).`);
+        } else {
+             console.log("An unknown user disconnected.");
         }
     });
 });
 
+// Helper function to get online status for all registered users
 function getUserStatus() {
-    return Object.fromEntries(Object.entries(users).map(([user, info]) => [user, info.online]));
+    const status = {};
+    for (const user in users) {
+        status[user] = users[user].online;
+    }
+    return status;
 }
 
 http.listen(PORT, () => {
