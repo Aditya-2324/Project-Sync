@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ChatGPT-Style Chat</title>
-  <link rel="stylesheet" href="style.css?v=2" />
-  <script defer src="/socket.io/socket.io.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" /> <title>ChatGPT-Style Chat</title>
+  <link rel="stylesheet" href="style.css?v=3" /> <script defer src="/socket.io/socket.io.js"></script>
   <script defer src="client.js"></script>
 </head>
 <body>
@@ -21,13 +19,12 @@
 
   <div id="chat-page" style="display: none">
     <div class="chat-container">
-    <div id="online-status"></div>
-    <button id="delete-selected-btn" style="display:none;">🗑 Delete Selected</button> <div id="chat-box"></div>
-    </div>
+      <div id="online-status"></div>
+      <button id="delete-selected-btn" style="display:none;">🗑 Delete Selected</button>
       <div id="chat-box"></div>
       <div id="reply-box"></div>
       <div id="input-area">
-        <input id="message" placeholder="Type your message..." oninput="typing()" onblur="stopTyping()" />
+        <textarea id="message" placeholder="Type your message..." oninput="typing()" onblur="stopTyping()"></textarea>
         <button onclick="sendMessage()">Send</button>
       </div>
       <div id="typing-status"></div>
