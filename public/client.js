@@ -45,6 +45,17 @@ socket.on('messagesUpdated', (updatedMessages) => {
 
 socket.on('chatHistory', updateChat); // Keep this for initial load or full history syncs if needed
 
+// ... existing socket.on events ...
+
+socket.on("messageDeleted", (timestamp) => {
+    const msgDivToRemove = document.querySelector(`[data-timestamp="${timestamp}"]`);
+    if (msgDivToRemove) {
+        msgDivToRemove.remove();
+    }
+});
+
+// ... rest of your client.js ...
+
 socket.on("updateUsers", (users) => {
   const other = Object.keys(users).find(u => u !== currentUser);
   document.getElementById("online-status").textContent =
