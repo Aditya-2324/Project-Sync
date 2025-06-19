@@ -4,6 +4,8 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
+const PORT = process.env.PORT || 3000; // ✅ Moved to top
+
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const users = {
@@ -75,10 +77,5 @@ function getUserStatus() {
 }
 
 http.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
