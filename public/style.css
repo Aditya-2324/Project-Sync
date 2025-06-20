@@ -221,6 +221,11 @@ html, body {
     align-items: center; /* Vertically center the ticks if they have height differences */
 }
 
+/* Blue tick for seen messages */
+.msg.right .message-status { /* Target outgoing messages only */
+    color: #4fc3f7; /* A nice WhatsApp-like blue */
+}
+
 /* Specific styling for left/right messages - ensure flex-direction is correct */
 .msg.left .message-content {
     flex-direction: row; /* Text then status */
