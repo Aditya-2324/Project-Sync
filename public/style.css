@@ -169,11 +169,11 @@ html, body {
 /* Individual Message Styles (no change here) */
 .msg {
     max-width: 85%;
-    padding: 14px 18px;
-    border-radius: 22px;
+    padding: 12px 16px;
+    border-radius: 20px;
     position: relative;
-    font-size: 1.03em;
-    margin: 8px 0;
+    font-size: 1em;
+    margin: 6px 0;
     word-wrap: break-word;
     word-break: break-word;
     line-height: 1.4;
