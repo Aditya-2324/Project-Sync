@@ -175,8 +175,8 @@ function addMessage(msg) {
     const textContentDiv = document.createElement("div");
     textContentDiv.className = "message-content"; // New class for content
     textContentDiv.innerHTML = `
-        ${msg.text}
-        <small>${msg.seen ? "✓✓" : "✓"}</small>
+        <span class="message-text">${msg.text}</span>
+        <small class="message-status">${msg.seen ? "✓✓" : "✓"}</small>
     `;
     msgDiv.appendChild(textContentDiv);
 
