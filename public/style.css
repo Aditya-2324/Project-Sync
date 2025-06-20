@@ -17,7 +17,7 @@ html, body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 17px; /* Increased base font size */
+    font-size: 18px; /* Increased base font size */
     color: #333;
     overflow-y: auto; /* Enable scrolling for the entire body */
     overscroll-behavior-y: contain; /* Prevents bounce scroll on some Androids */
@@ -33,7 +33,7 @@ html, body {
     /* Remove overflow: hidden here as body handles it */
 }
 
-/* Login Page (no major change needed here for layout) */
+/* Login Page Specifics */
 #login-page {
     align-items: center;
     justify-content: center;
@@ -43,7 +43,7 @@ html, body {
 
 .login-container {
     background: #ffffff;
-    padding: 35px;
+    padding: 35px; /* More padding */
     border-radius: 12px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     width: 90%;
@@ -54,15 +54,15 @@ html, body {
 }
 
 #login-page h2 {
-    margin-bottom: 30px;
+    margin-bottom: 30px; /* More space */
     color: #333;
-    font-size: 2.4em;
+    font-size: 2.4em; /* Even larger title */
     font-weight: 600;
 }
 
 #login-page input {
-    margin: 15px 0;
-    padding: 16px;
+    margin: 15px 0; /* More margin */
+    padding: 16px; /* Increased padding */
     width: 100%;
     border-radius: 10px;
     border: 1px solid #c0c0c0;
@@ -70,8 +70,8 @@ html, body {
 }
 
 #login-page button {
-    margin-top: 30px;
-    padding: 16px 30px;
+    margin-top: 30px; /* More space */
+    padding: 16px 30px; /* Increased padding */
     width: 100%;
     border-radius: 30px;
     background: #10a37f;
@@ -166,16 +166,16 @@ html, body {
     justify-content: flex-end; /* Push messages to the bottom */
 }
 
-/* Individual Message Styles (no change here) */
+/* Individual Message Styles */
 .msg {
     max-width: 85%;
-    padding: 12px 16px;
-    border-radius: 20px;
+    padding: 12px 16px; /* Decreased padding inside bubbles from 14/18 to 12/16 */
+    border-radius: 20px; /* Slightly decreased radius from 22px to 20px */
     position: relative;
-    font-size: 1em;
-    margin: 6px 0;
-    word-wrap: break-word;
-    word-break: break-word;
+    font-size: 1em; /* Decreased font size from 1.05em to 1em (now exactly base 18px) */
+    margin: 6px 0; /* Decreased vertical margin from 8px to 6px */
+    word-wrap: break-word; /* Ensure text wraps */
+    word-break: break-word; /* Ensure long words break */
     line-height: 1.4;
     box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.15);
     transform: translateX(0);
@@ -185,33 +185,59 @@ html, body {
 .msg.left {
     align-self: flex-start;
     background: #ffffff;
-    border-top-left-radius: 8px;
+    border-top-left-radius: 8px; /* Adjusted radius */
 }
 
 .msg.right {
     align-self: flex-end;
     background: #dcf8c6;
-    border-top-right-radius: 8px;
+    border-top-right-radius: 8px; /* Adjusted radius */
 }
 
-.msg small {
-    display: block;
-    text-align: right;
-    font-size: 0.75em;
+/* Container for message text and status icon */
+.message-content {
+    display: flex; /* Use flexbox */
+    align-items: flex-end; /* Align items to the bottom */
+    flex-wrap: wrap; /* Allow items to wrap to the next line if needed */
+    gap: 8px; /* Space between message text and status */
+}
+
+.message-text {
+    /* Ensures text takes up available space and wraps naturally */
+    flex-shrink: 1; /* Allow shrinking */
+    min-width: 0; /* Important for flex items within flex-wrap */
+    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+}
+
+.message-status { /* Was just 'small' */
+    flex-shrink: 0; /* Prevent the status from shrinking */
+    margin-left: auto; /* Push it to the right */
+    white-space: nowrap; /* Keep the ticks on one line */
+    font-size: 0.75em; /* Keep it relatively small */
     color: #666;
-    margin-top: 5px;
-    line-height: 1;
+    line-height: 1; /* Ensure minimal height for this element */
     opacity: 0.9;
+    display: inline-flex; /* Use inline-flex for better alignment of the ticks themselves */
+    align-items: center; /* Vertically center the ticks if they have height differences */
 }
 
-/* Reply Quote inside message bubble (no change) */
+/* Specific styling for left/right messages - ensure flex-direction is correct */
+.msg.left .message-content {
+    flex-direction: row; /* Text then status */
+}
+
+.msg.right .message-content {
+    flex-direction: row; /* Text then status */
+}
+
+/* Reply Quote inside message bubble */
 .reply-quote {
-    background-color: rgba(0, 0, 0, 0.05);
-    border-left: 3px solid #007bff;
+    background-color: rgba(0, 0, 0, 0.05); /* Slightly darker background */
+    border-left: 3px solid #007bff; /* Blue line */
     padding: 5px 8px;
-    margin-bottom: 8px;
+    margin-bottom: 8px; /* Space between quote and message text */
     border-radius: 4px;
-    font-size: 0.85em;
+    font-size: 0.85em; /* Smaller text for quote */
     color: #555;
     white-space: nowrap;
     overflow: hidden;
@@ -323,10 +349,10 @@ html, body {
     min-height: 35px;
     text-align: center;
     /* Add margin-bottom to make space for the fixed input area */
-    margin-bottom: 70px; /* Adjust this value based on your input area height */
+    margin-bottom: 70px; /* Adjust this value based on your input area height + reply box */
 }
 
-/* Styles for Swipe to Reply (no change) */
+/* --- Styles for Swipe to Reply --- */
 .msg.swiped-for-reply {
     transform: translateX(60px);
 }
