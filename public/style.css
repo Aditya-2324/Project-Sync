@@ -222,7 +222,7 @@ html, body {
 }
 
 /* Blue tick for seen messages */
-.msg.right .message-status { /* Target outgoing messages only */
+.msg.right.seen .message-status { /* Target outgoing messages only */
     color: #4fc3f7; /* A nice WhatsApp-like blue */
 }
 
