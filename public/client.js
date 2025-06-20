@@ -3,7 +3,6 @@ const socket = io();
 let currentUser = null;
 let chatHistory = [];
 let replyTo = null; // Stores the text being replied to
-// Removed longPressTimeout and selectedMessages as we're doing "clear all"
 
 // DOM Elements
 const loginPage = document.getElementById("login-page");
@@ -18,7 +17,7 @@ const typingStatus = document.getElementById("typing-status");
 const replyBox = document.getElementById("reply-box");
 const replyText = document.getElementById("reply-text");
 const cancelReplyBtn = document.getElementById("cancel-reply");
-const clearChatBtn = document.getElementById("clear-chat-btn"); // NEW: Clear Chat Button
+const clearChatBtn = document.getElementById("clear-chat-btn"); // Clear Chat Button
 
 // --- Login Logic ---
 function login() {
@@ -113,14 +112,12 @@ socket.on("newMessage", (msg) => {
     chatHistory.push(msg); // Add new message to local history
     addMessage(msg); // Display the message
     // Mark as seen if not from current user and chat page is active
-    if (msg.sender !== currentUser) {
+    if (msg.sender !== currentUser) { // Only mark messages from others as seen
         socket.emit("markSeen", msg.timestamp); // Emit timestamp of the message that was seen
     }
     // Auto-scroll to bottom only if user is already near the bottom
-    const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 1; // Tolerance 1px
-    if (isScrolledToBottom) {
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    // This logic relies on the entire body being scrollable (flexbox fixed footer)
+    window.scrollTo(0, document.body.scrollHeight);
 });
 
 // Update an existing message (e.g., seen status)
@@ -135,15 +132,21 @@ socket.on('messagesUpdated', (updatedMessages) => {
         // Update DOM
         const msgDiv = document.querySelector(`[data-timestamp="${update.timestamp}"]`);
         if (msgDiv) {
-            const smallTag = msgDiv.querySelector('small');
+            const smallTag = msgDiv.querySelector('.message-status'); // Use the class name
             if (smallTag) {
                 smallTag.textContent = update.seen ? "✓✓" : "✓";
+                // Add/remove class for blue color
+                if (update.seen) {
+                    msgDiv.classList.add('seen'); // Add 'seen' class to the parent message div
+                } else {
+                    msgDiv.classList.remove('seen');
+                }
             }
         }
     });
 });
 
-// NEW: Handle server-side chat clear
+// Handle server-side chat clear
 socket.on('chatCleared', () => {
     chatHistory = []; // Clear local history
     chatBox.innerHTML = ""; // Clear messages from UI
@@ -155,14 +158,20 @@ socket.on('chatCleared', () => {
 function updateChat(history) {
     chatBox.innerHTML = ""; // Clear existing messages
     history.forEach(addMessage); // Add all messages
-    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    // Ensure scroll to bottom after adding all messages
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
-// --- Message Display and Interaction (Simplified for Swipe-to-Reply only) ---
+// --- Message Display and Interaction (Swipe to Reply) ---
 function addMessage(msg) {
     const msgDiv = document.createElement("div");
     msgDiv.className = msg.sender === currentUser ? "msg right" : "msg left";
-    msgDiv.setAttribute("data-timestamp", msg.timestamp); // Essential for updates/deletion
+    msgDiv.setAttribute("data-timestamp", msg.timestamp); // Essential for updates
+
+    // Add 'seen' class if message is already seen (for initial load)
+    if (msg.seen && msg.sender === currentUser) {
+        msgDiv.classList.add('seen');
+    }
 
     // Reply indicator within the message bubble
     if (msg.replyTo) {
@@ -174,13 +183,14 @@ function addMessage(msg) {
 
     const textContentDiv = document.createElement("div");
     textContentDiv.className = "message-content"; // New class for content
+    // Updated: span for message text, small for status
     textContentDiv.innerHTML = `
         <span class="message-text">${msg.text}</span>
         <small class="message-status">${msg.seen ? "✓✓" : "✓"}</small>
     `;
     msgDiv.appendChild(textContentDiv);
 
-    // --- Message Interaction (Swipe to reply only, removed long-press for simplicity) ---
+    // --- Message Interaction (Swipe to reply only) ---
     let startX = 0;
     let startY = 0;
     let isSwiping = false;
@@ -280,7 +290,8 @@ function addMessage(msg) {
     });
 
     chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    // Auto-scroll the *window* to the bottom after adding message
+    window.scrollTo(0, document.body.scrollHeight);
 }
 
 // --- Reply Feature ---
@@ -297,7 +308,7 @@ cancelReplyBtn.addEventListener("click", () => {
     replyBox.style.display = "none";
 });
 
-// --- NEW: Clear Chat Functionality ---
+// --- Clear Chat Functionality ---
 clearChatBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to clear ALL chat messages? This cannot be undone.")) {
         socket.emit("clearChat");
@@ -315,8 +326,8 @@ messageInput.addEventListener("blur", stopTyping);
 
 messageInput.addEventListener("focus", () => {
     // Scroll to bottom when input is focused if it's not already at the very bottom
-    // This helps with the virtual keyboard
-    chatBox.scrollTop = chatBox.scrollHeight;
+    // This helps with the virtual keyboard, scrolls the entire page
+    window.scrollTo(0, document.body.scrollHeight);
 });
 
 // Handle send on Enter key
