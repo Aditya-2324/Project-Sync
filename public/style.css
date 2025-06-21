@@ -130,24 +130,32 @@ html, body {
     flex-grow: 1;
     font-size: 1.15em;
     font-weight: 600;
-    text-align: left;
-    margin-right: 15px;
+    text-align: left; /* Align to left */
+    margin-right: 10px; /* Small margin for separation from icon */
+    white-space: nowrap; /* Prevent user list from wrapping if short */
+    overflow: hidden; /* Hide overflow if text is too long */
+    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
 }
 
 #clear-chat-btn {
-    padding: 8px 15px;
-    background-color: #dc3545;
-    color: white;
-    border-radius: 6px;
-    font-size: 0.9em;
+    padding: 0; /* Changed from 8px 15px to 0 */
+    background-color: transparent; /* Changed from #dc3545 to transparent */
+    color: white; /* Icon color */
+    border-radius: 6px; /* Keep if you want a slight border-radius on transparent button */
+    font-size: 1.6em; /* Increased font size for the icon */
     cursor: pointer;
     border: none;
     transition: background 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: none; /* Removed box-shadow */
+    width: 40px; /* Give it a fixed width for consistent spacing */
+    height: 40px; /* Give it a fixed height */
+    display: flex; /* Use flex to center the icon */
+    justify-content: center;
+    align-items: center;
 }
 
 #clear-chat-btn:hover {
-    background-color: #c82333;
+    background-color: rgba(255, 255, 255, 0.1); /* Slight background on hover for feedback */
 }
 
 #clear-chat-btn:active {
@@ -169,11 +177,11 @@ html, body {
 /* Individual Message Styles */
 .msg {
     max-width: 85%;
-    padding: 10px 14px; /* Decreased padding inside bubbles from 14/18 to 12/16 */
-    border-radius: 18px; /* Slightly decreased radius from 22px to 20px */
+    padding: 12px 16px; /* Decreased padding inside bubbles from 14/18 to 12/16 */
+    border-radius: 20px; /* Slightly decreased radius from 22px to 20px */
     position: relative;
-    font-size: 0.8em; /* Decreased font size from 1.05em to 1em (now exactly base 18px) */
-    margin: 4px 0; /* Decreased vertical margin from 8px to 6px */
+    font-size: 1em; /* Decreased font size from 1.05em to 1em (now exactly base 18px) */
+    margin: 6px 0; /* Decreased vertical margin from 8px to 6px */
     word-wrap: break-word; /* Ensure text wraps */
     word-break: break-word; /* Ensure long words break */
     line-height: 1.4;
@@ -214,17 +222,18 @@ html, body {
     margin-left: auto; /* Push it to the right */
     white-space: nowrap; /* Keep the ticks on one line */
     font-size: 0.75em; /* Keep it relatively small */
-    color: #666;
+    color: #666; /* Default grey color */
     line-height: 1; /* Ensure minimal height for this element */
     opacity: 0.9;
     display: inline-flex; /* Use inline-flex for better alignment of the ticks themselves */
     align-items: center; /* Vertically center the ticks if they have height differences */
 }
 
-/* Blue tick for seen messages */
-.msg.right.seen .message-status { /* Target outgoing messages only */
+/* Blue tick for seen messages - applies only to 'right' (outgoing) messages that are 'seen' */
+.msg.right.seen .message-status { /* Targets right-aligned messages that also have the 'seen' class */
     color: #4fc3f7; /* A nice WhatsApp-like blue */
 }
+
 
 /* Specific styling for left/right messages - ensure flex-direction is correct */
 .msg.left .message-content {
@@ -314,7 +323,7 @@ html, body {
     padding: 14px 18px;
     border-radius: 28px;
     border: 1px solid #ccc;
-    font-size: 1.05em;
+    font-size: 1em; /* Changed from 1.05em to 1em to match message font size */
     outline: none;
     resize: none;
     min-height: 48px;
