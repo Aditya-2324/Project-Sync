@@ -185,7 +185,7 @@ html, body {
     padding: 12px 16px;
     border-radius: 20px;
     position: relative;
-    font-size: 0.95em;
+    font-size: 0.80em;
     margin: 6px 0;
     word-wrap: break-word;
     word-break: break-word;
@@ -327,7 +327,7 @@ html, body {
     border: 1px solid #444; /* Darker border for message input */
     background-color: #2a2a2a; /* Darker input background */
     color: #f0f0f0; /* Lighter text color inside input */
-    font-size: 0.95em;
+    font-size: 0.80em;
     outline: none;
     resize: none;
     min-height: 48px;
