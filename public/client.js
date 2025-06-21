@@ -160,12 +160,15 @@ socket.on('chatCleared', () => {
     setTimeout(() => typingStatus.textContent = "", 3000);
 });
 
-// Full chat history update (for initial load)
+// Inside updateChat(history)
 function updateChat(history) {
     chatBox.innerHTML = ""; // Clear existing messages
     history.forEach(addMessage); // Add all messages
-    // Ensure scroll to bottom after adding all messages
-    window.scrollTo(0, document.body.scrollHeight);
+    // Scroll after all messages are added
+    setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+        // typingStatus.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100); // Slightly longer delay for initial load
 }
 
 // --- Message Display and Interaction (Swipe to Reply) ---
