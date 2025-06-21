@@ -35,7 +35,6 @@ socket.on("loginSuccess", (data) => {
     chatHistory = data.chatHistory;
     loginPage.style.display = "none";
     chatPage.style.display = "flex";
-    // Removed initial "Welcome" message from here, handled by updateUsers
     updateChat(chatHistory); // Display initial chat history
     
     // Mark all other users' messages as seen when current user logs in
@@ -108,22 +107,16 @@ function sendMessage() {
     }
 }
 
-// Inside socket.on("newMessage")
 socket.on("newMessage", (msg) => {
     chatHistory.push(msg); // Add new message to local history
     addMessage(msg); // Display the message
-    if (msg.sender !== currentUser) {
-        socket.emit("markSeen", msg.timestamp);
+    if (msg.sender !== currentUser) { // Only mark messages from others as seen
+        socket.emit("markSeen", msg.timestamp); // Emit timestamp of the message that was seen
     }
-    // New/Updated scrolling logic
-    // Scroll to the bottom of the document, or bring the typingStatus into view
-    // Using a timeout to allow browser to render new message and keyboard to settle
+    // New/Updated scrolling logic for new messages
     setTimeout(() => {
-        // Option 1: Scroll the very bottom of the body into view
-        window.scrollTo(0, document.body.scrollHeight);
-        // Option 2: Scroll the typing status element into view (might be more reliable on some devices)
-        // typingStatus.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 50); // Small delay to allow DOM to render and layout to settle
+        messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 50); // Small delay
 });
 
 // Update an existing message (e.g., seen status)
@@ -160,14 +153,13 @@ socket.on('chatCleared', () => {
     setTimeout(() => typingStatus.textContent = "", 3000);
 });
 
-// Inside updateChat(history)
+// Full chat history update (for initial load)
 function updateChat(history) {
     chatBox.innerHTML = ""; // Clear existing messages
     history.forEach(addMessage); // Add all messages
-    // Scroll after all messages are added
+    // Scroll after all messages are added for initial load
     setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-        // typingStatus.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, 100); // Slightly longer delay for initial load
 }
 
@@ -193,7 +185,6 @@ function addMessage(msg) {
 
     const textContentDiv = document.createElement("div");
     textContentDiv.className = "message-content"; // New class for content
-    // Updated: span for message text, small for status
     textContentDiv.innerHTML = `
         <span class="message-text">${msg.text}</span>
         <small class="message-status">${msg.seen ? "✓✓" : "✓"}</small>
@@ -300,8 +291,7 @@ function addMessage(msg) {
     });
 
     chatBox.appendChild(msgDiv);
-    // Auto-scroll the *window* to the bottom after adding message
-    window.scrollTo(0, document.body.scrollHeight);
+    // Initial scroll is handled by updateChat and newMessage event listeners with timeout
 }
 
 // --- Reply Feature ---
@@ -337,9 +327,8 @@ messageInput.addEventListener("blur", stopTyping);
 messageInput.addEventListener("focus", () => {
     // Scroll to bottom when input is focused if it's not already at the very bottom
     // This helps with the virtual keyboard, scrolls the entire page
-    // Using a small timeout to ensure keyboard is up before scrolling
     setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight);
+        messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, 50); // Small delay
 });
 
