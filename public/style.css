@@ -164,14 +164,15 @@ html, body {
 
 /* Chat Box (Messages Area) - now just a container for messages */
 #chat-box {
-    /* No longer flex: 1 and overflow-y: auto here */
     padding: 15px;
     background: #e5ddd5;
     display: flex;
     flex-direction: column;
-    /* This will push messages up as they come */
-    flex-grow: 1; /* Allows it to expand */
-    justify-content: flex-end; /* Push messages to the bottom */
+    flex-grow: 1;
+    justify-content: flex-end;
+    /* NEW: Add padding-bottom to make space for the fixed input area */
+    /* This should be slightly more than the input-area height + reply-box height + typing-status height */
+    padding-bottom: 120px; /* Adjust this value. (e.g., input=48px, send=48px, reply=30px, typing=35px, margins...) */
 }
 
 /* Individual Message Styles */
@@ -362,8 +363,6 @@ html, body {
     color: #777;
     min-height: 35px;
     text-align: center;
-    /* Add margin-bottom to make space for the fixed input area */
-    margin-bottom: 70px; /* Adjust this value based on your input area height + reply box */
 }
 
 /* --- Styles for Swipe to Reply --- */
