@@ -184,7 +184,7 @@ html, body {
     padding: 12px 16px; /* Decreased padding inside bubbles from 14/18 to 12/16 */
     border-radius: 20px; /* Slightly decreased radius from 22px to 20px */
     position: relative;
-    font-size: 1em; /* Decreased font size from 1.05em to 1em (now exactly base 18px) */
+    font-size: 0.95em; /* Decreased font size from 1.05em to 1em (now exactly base 18px) */
     margin: 6px 0; /* Decreased vertical margin from 8px to 6px */
     word-wrap: break-word; /* Ensure text wraps */
     word-break: break-word; /* Ensure long words break */
@@ -327,7 +327,7 @@ html, body {
     padding: 14px 18px;
     border-radius: 28px;
     border: 1px solid #ccc;
-    font-size: 1em; /* Changed from 1.05em to 1em to match message font size */
+    font-size: 0.95em; /* Changed from 1.05em to 1em to match message font size */
     outline: none;
     resize: none;
     min-height: 48px;
