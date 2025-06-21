@@ -162,17 +162,20 @@ html, body {
     transform: translateY(1px);
 }
 
-/* Chat Box (Messages Area) - now just a container for messages */
+/* Chat Box (Messages Area) */
 #chat-box {
     padding: 15px;
-    background: #e5ddd5;
+    /* REMOVE: background: #e5ddd5; */ /* Remove the solid background color */
+    background-image: url('image_87c260.png'); /* NEW: Set your background image */
+    background-repeat: repeat; /* NEW: Repeat the image to cover the area */
+    background-size: auto; /* NEW: Adjust if needed, 'cover' or specific px/em for scaling */
+    background-color: #e5ddd5; /* Fallback color if image fails to load */
+
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     justify-content: flex-end;
-    /* NEW: Add padding-bottom to make space for the fixed input area */
-    /* This should be slightly more than the input-area height + reply-box height + typing-status height */
-    padding-bottom: 120px; /* Adjust this value. (e.g., input=48px, send=48px, reply=30px, typing=35px, margins...) */
+    padding-bottom: 120px; /* Keep this value, adjust if needed for keyboard */
 }
 
 /* Individual Message Styles */
