@@ -12,7 +12,7 @@ html, body {
     padding: 0;
     height: 100%;
     width: 100%;
-    background-color: #1a2732; /* Overall very dark app background */
+    background-color: #000000; /* Fully black for the very edges of the screen */
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -22,13 +22,13 @@ html, body {
     overscroll-behavior-y: contain;
 }
 
-/* Overall app containers - now dark */
+/* Overall app containers - now very dark */
 #chat-page, #login-page {
     min-height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #222f3e; /* Main dark background for content areas */
+    background-color: #0f0f0f; /* Very dark background for main content areas */
 }
 
 /* Login Page Specifics */
@@ -40,10 +40,10 @@ html, body {
 }
 
 .login-container {
-    background-color: #1f2c38; /* Darker background for login box */
+    background-color: #1a1a1a; /* Slightly lighter dark background for login box */
     padding: 35px;
     border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Darker shadow for dark theme */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for dark theme */
     width: 90%;
     max-width: 450px;
     display: flex;
@@ -63,14 +63,14 @@ html, body {
     padding: 16px;
     width: 100%;
     border-radius: 10px;
-    border: 1px solid #444f62; /* Darker border for inputs */
-    background-color: #2a3b4c; /* Darker input background */
+    border: 1px solid #444; /* Slightly lighter border for inputs */
+    background-color: #2a2a2a; /* Darker input background */
     color: #f0f0f0; /* Lighter text color inside input */
     font-size: 1.1em;
 }
 
 #login-page input::placeholder {
-    color: #999; /* Lighter placeholder text */
+    color: #888; /* Lighter placeholder text */
 }
 
 #login-page button {
@@ -85,7 +85,7 @@ html, body {
     cursor: pointer;
     font-size: 1.3em;
     transition: background 0.3s ease, transform 0.1s ease;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 #login-page button:hover {
@@ -97,7 +97,7 @@ html, body {
 }
 
 .error {
-    color: #ff6b6b; /* Slightly softer red for dark theme */
+    color: #ff6b6b; /* Soft red for dark theme */
     font-size: 1em;
     margin-top: 15px;
     text-align: center;
@@ -112,7 +112,7 @@ html, body {
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Darker shadow */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* Stronger shadow */
 }
 
 /* Header */
@@ -121,10 +121,10 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background: #1f2c38; /* Darker header matching input area */
+    background: #1a1a1a; /* Darker header matching login box */
     color: white;
     min-height: 60px;
-    border-bottom: 1px solid #1a2732;
+    border-bottom: 1px solid #333; /* Darker border */
     box-sizing: border-box;
 }
 
@@ -167,10 +167,11 @@ html, body {
 /* Chat Box (Messages Area) */
 #chat-box {
     padding: 15px;
+    /* IMPORTANT: Consider removing or changing this image if it's light and doesn't suit a dark theme */
     background-image: url('image_87c260.png'); /* Keep if you want the texture */
     background-repeat: repeat;
     background-size: auto;
-    background-color: #222f3e; /* New fallback/base color for chat area */
+    background-color: #0f0f0f; /* Very dark background for chat area */
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -184,12 +185,12 @@ html, body {
     padding: 12px 16px;
     border-radius: 20px;
     position: relative;
-    font-size: 0.95em; /* Decreased font size */
+    font-size: 0.95em;
     margin: 6px 0;
     word-wrap: break-word;
     word-break: break-word;
     line-height: 1.4;
-    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.25); /* Darker shadow */
+    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.4); /* Stronger shadow */
     transform: translateX(0);
     transition: transform 0.2s ease-out;
     color: #e0e0e0; /* Default text color for messages */
@@ -197,7 +198,7 @@ html, body {
 
 .msg.left {
     align-self: flex-start;
-    background-color: #34495e; /* Dark grey-blue for incoming messages */
+    background-color: #2a2a2a; /* Dark grey for incoming messages */
     border-top-left-radius: 8px;
 }
 
@@ -226,7 +227,7 @@ html, body {
     margin-left: auto;
     white-space: nowrap;
     font-size: 0.75em;
-    color: #a0a0a0; /* Lighter grey for ticks on dark background */
+    color: #a0a0a0;
     line-height: 1;
     opacity: 0.9;
     display: inline-flex;
@@ -235,7 +236,7 @@ html, body {
 
 /* Blue tick for seen messages - applies only to 'right' (outgoing) messages that are 'seen' */
 .msg.right.seen .message-status {
-    color: #4fc3f7; /* Keep the blue, it should contrast well */
+    color: #4fc3f7;
 }
 
 /* Specific styling for left/right messages - ensure flex-direction is correct */
@@ -249,13 +250,13 @@ html, body {
 
 /* Reply Quote inside message bubble */
 .reply-quote {
-    background-color: rgba(255, 255, 255, 0.1); /* Lighter transparent background */
-    border-left: 3px solid #007bff; /* Keep blue line */
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly lighter transparent background */
+    border-left: 3px solid #007bff;
     padding: 5px 8px;
     margin-bottom: 8px;
     border-radius: 4px;
     font-size: 0.85em;
-    color: #ccc; /* Lighter text color */
+    color: #ccc;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -263,22 +264,22 @@ html, body {
 
 .reply-quote span {
     font-weight: 500;
-    color: #e0e0e0; /* Lighter text color */
+    color: #e0e0e0;
 }
 
 /* Reply Box Indicator (at bottom above input) */
 #reply-box {
     padding: 10px 15px;
-    background-color: #1f2c38; /* Darker background */
+    background-color: #1a1a1a; /* Darker background */
     border-left: 4px solid #007bff;
     font-size: 1em;
-    color: #ccc; /* Lighter text color */
+    color: #ccc;
     margin: 0 15px 0 15px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 #reply-text {
@@ -292,7 +293,7 @@ html, body {
 #cancel-reply {
     background: none;
     border: none;
-    color: #a0a0a0; /* Lighter color for close button */
+    color: #a0a0a0;
     font-size: 1.2em;
     cursor: pointer;
     padding: 2px 5px;
@@ -308,8 +309,8 @@ html, body {
     display: flex;
     align-items: flex-end;
     padding: 10px 15px;
-    background: #1f2c38; /* Darker input area background */
-    border-top: 1px solid #1a2732; /* Darker border */
+    background: #1a1a1a; /* Darker input area background */
+    border-top: 1px solid #333; /* Darker border */
     box-sizing: border-box;
     position: fixed;
     bottom: 0;
@@ -323,10 +324,10 @@ html, body {
     flex: 1;
     padding: 14px 18px;
     border-radius: 28px;
-    border: 1px solid #444f62; /* Darker border for message input */
-    background-color: #2a3b4c; /* Darker input background */
+    border: 1px solid #444; /* Darker border for message input */
+    background-color: #2a2a2a; /* Darker input background */
     color: #f0f0f0; /* Lighter text color inside input */
-    font-size: 0.95em; /* Decreased font size */
+    font-size: 0.95em;
     outline: none;
     resize: none;
     min-height: 48px;
@@ -336,7 +337,7 @@ html, body {
 }
 
 #message::placeholder {
-    color: #999; /* Lighter placeholder text */
+    color: #888; /* Lighter placeholder text */
 }
 
 /* Send Button */
@@ -366,7 +367,7 @@ html, body {
 #typing-status {
     padding: 8px 15px;
     font-size: 0.9em;
-    color: #a0a0a0; /* Lighter color for typing status */
+    color: #a0a0a0;
     min-height: 35px;
     text-align: center;
 }
