@@ -175,7 +175,7 @@ html, body {
     flex-direction: column;
     flex-grow: 1;
     justify-content: flex-end;
-    padding-bottom: 120px; /* Keep this value, adjust if needed for keyboard */
+    padding-bottom: 80px; /* Keep this value, adjust if needed for keyboard */
 }
 
 /* Individual Message Styles */
