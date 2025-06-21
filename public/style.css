@@ -10,27 +10,25 @@
 html, body {
     margin: 0;
     padding: 0;
-    /* Important: Make HTML/Body full height and allow scrolling */
-    height: 100%; /* Use 100% for body/html to allow native scrolling */
+    height: 100%;
     width: 100%;
-    background: #f7f7f8;
+    background-color: #1a2732; /* Overall very dark app background */
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 18px; /* Increased base font size */
-    color: #333;
-    overflow-y: auto; /* Enable scrolling for the entire body */
-    overscroll-behavior-y: contain; /* Prevents bounce scroll on some Androids */
+    font-size: 18px;
+    color: #e0e0e0; /* Default text color for dark background */
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
 }
 
-/* This is the overall app container - it will be flexible */
+/* Overall app containers - now dark */
 #chat-page, #login-page {
-    min-height: 100%; /* Ensure it's at least full viewport height */
+    min-height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: white;
-    /* Remove overflow: hidden here as body handles it */
+    background-color: #222f3e; /* Main dark background for content areas */
 }
 
 /* Login Page Specifics */
@@ -42,10 +40,10 @@ html, body {
 }
 
 .login-container {
-    background: #ffffff;
-    padding: 35px; /* More padding */
+    background-color: #1f2c38; /* Darker background for login box */
+    padding: 35px;
     border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Darker shadow for dark theme */
     width: 90%;
     max-width: 450px;
     display: flex;
@@ -54,34 +52,40 @@ html, body {
 }
 
 #login-page h2 {
-    margin-bottom: 30px; /* More space */
-    color: #333;
-    font-size: 2.4em; /* Even larger title */
+    margin-bottom: 30px;
+    color: #f0f0f0; /* Lighter text for title */
+    font-size: 2.4em;
     font-weight: 600;
 }
 
 #login-page input {
-    margin: 15px 0; /* More margin */
-    padding: 16px; /* Increased padding */
+    margin: 15px 0;
+    padding: 16px;
     width: 100%;
     border-radius: 10px;
-    border: 1px solid #c0c0c0;
-    font-size: 1.1em; /* Critical for preventing mobile keyboard zoom */
+    border: 1px solid #444f62; /* Darker border for inputs */
+    background-color: #2a3b4c; /* Darker input background */
+    color: #f0f0f0; /* Lighter text color inside input */
+    font-size: 1.1em;
+}
+
+#login-page input::placeholder {
+    color: #999; /* Lighter placeholder text */
 }
 
 #login-page button {
-    margin-top: 30px; /* More space */
-    padding: 16px 30px; /* Increased padding */
+    margin-top: 30px;
+    padding: 16px 30px;
     width: 100%;
     border-radius: 30px;
-    background: #10a37f;
+    background: #10a37f; /* Keep the bright green */
     color: white;
     border: none;
     font-weight: bold;
     cursor: pointer;
     font-size: 1.3em;
     transition: background 0.3s ease, transform 0.1s ease;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 #login-page button:hover {
@@ -93,7 +97,7 @@ html, body {
 }
 
 .error {
-    color: #dc3545;
+    color: #ff6b6b; /* Slightly softer red for dark theme */
     font-size: 1em;
     margin-top: 15px;
     text-align: center;
@@ -101,61 +105,59 @@ html, body {
 }
 
 /* Chat Page Specifics */
-/* This outer container remains flexible */
 .chat-container {
-    flex: 1; /* Makes it take available space within chat-page */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    max-width: 800px; /* Still apply max-width for desktop */
-    width: 100%; /* Full width on mobile */
-    margin: 0 auto; /* Center it */
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Darker shadow */
 }
 
-/* Header - now part of the normal flow */
+/* Header */
 #header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background: #2c3e50;
+    background: #1f2c38; /* Darker header matching input area */
     color: white;
     min-height: 60px;
     border-bottom: 1px solid #1a2732;
     box-sizing: border-box;
-    /* Not fixed anymore, it scrolls with the content */
 }
 
 #online-status {
     flex-grow: 1;
     font-size: 1.15em;
     font-weight: 600;
-    text-align: left; /* Align to left */
-    margin-right: 10px; /* Small margin for separation from icon */
-    white-space: nowrap; /* Prevent user list from wrapping if short */
-    overflow: hidden; /* Hide overflow if text is too long */
-    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
+    text-align: left;
+    margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #clear-chat-btn {
-    padding: 0; /* Changed from 8px 15px to 0 */
-    background-color: transparent; /* Changed from #dc3545 to transparent */
-    color: white; /* Icon color */
-    border-radius: 6px; /* Keep if you want a slight border-radius on transparent button */
-    font-size: 1.6em; /* Increased font size for the icon */
+    padding: 0;
+    background-color: transparent;
+    color: white;
+    border-radius: 6px;
+    font-size: 1.6em;
     cursor: pointer;
     border: none;
     transition: background 0.2s ease, transform 0.1s ease;
-    box-shadow: none; /* Removed box-shadow */
-    width: 40px; /* Give it a fixed width for consistent spacing */
-    height: 40px; /* Give it a fixed height */
-    display: flex; /* Use flex to center the icon */
+    box-shadow: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 #clear-chat-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Slight background on hover for feedback */
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 #clear-chat-btn:active {
@@ -165,98 +167,95 @@ html, body {
 /* Chat Box (Messages Area) */
 #chat-box {
     padding: 15px;
-    /* REMOVE: background: #e5ddd5; */ /* Remove the solid background color */
-    background-image: url('image_87c260.png'); /* NEW: Set your background image */
-    background-repeat: repeat; /* NEW: Repeat the image to cover the area */
-    background-size: auto; /* NEW: Adjust if needed, 'cover' or specific px/em for scaling */
-    background-color: #e5ddd5; /* Fallback color if image fails to load */
-
+    background-image: url('image_87c260.png'); /* Keep if you want the texture */
+    background-repeat: repeat;
+    background-size: auto;
+    background-color: #222f3e; /* New fallback/base color for chat area */
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     justify-content: flex-end;
-    padding-bottom: 80px; /* Keep this value, adjust if needed for keyboard */
+    padding-bottom: 120px; /* Adjust if needed for keyboard */
 }
 
 /* Individual Message Styles */
 .msg {
     max-width: 85%;
-    padding: 12px 16px; /* Decreased padding inside bubbles from 14/18 to 12/16 */
-    border-radius: 20px; /* Slightly decreased radius from 22px to 20px */
+    padding: 12px 16px;
+    border-radius: 20px;
     position: relative;
-    font-size: 0.95em; /* Decreased font size from 1.05em to 1em (now exactly base 18px) */
-    margin: 6px 0; /* Decreased vertical margin from 8px to 6px */
-    word-wrap: break-word; /* Ensure text wraps */
-    word-break: break-word; /* Ensure long words break */
+    font-size: 0.95em; /* Decreased font size */
+    margin: 6px 0;
+    word-wrap: break-word;
+    word-break: break-word;
     line-height: 1.4;
-    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.25); /* Darker shadow */
     transform: translateX(0);
     transition: transform 0.2s ease-out;
+    color: #e0e0e0; /* Default text color for messages */
 }
 
 .msg.left {
     align-self: flex-start;
-    background: #ffffff;
-    border-top-left-radius: 8px; /* Adjusted radius */
+    background-color: #34495e; /* Dark grey-blue for incoming messages */
+    border-top-left-radius: 8px;
 }
 
 .msg.right {
     align-self: flex-end;
-    background: #dcf8c6;
-    border-top-right-radius: 8px; /* Adjusted radius */
+    background-color: #128c7e; /* Darker green for outgoing messages */
+    border-top-right-radius: 8px;
 }
 
 /* Container for message text and status icon */
 .message-content {
-    display: flex; /* Use flexbox */
-    align-items: flex-end; /* Align items to the bottom */
-    flex-wrap: wrap; /* Allow items to wrap to the next line if needed */
-    gap: 8px; /* Space between message text and status */
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .message-text {
-    /* Ensures text takes up available space and wraps naturally */
-    flex-shrink: 1; /* Allow shrinking */
-    min-width: 0; /* Important for flex items within flex-wrap */
-    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+    flex-shrink: 1;
+    min-width: 0;
+    white-space: pre-wrap;
 }
 
-.message-status { /* Was just 'small' */
-    flex-shrink: 0; /* Prevent the status from shrinking */
-    margin-left: auto; /* Push it to the right */
-    white-space: nowrap; /* Keep the ticks on one line */
-    font-size: 0.75em; /* Keep it relatively small */
-    color: #666; /* Default grey color */
-    line-height: 1; /* Ensure minimal height for this element */
+.message-status {
+    flex-shrink: 0;
+    margin-left: auto;
+    white-space: nowrap;
+    font-size: 0.75em;
+    color: #a0a0a0; /* Lighter grey for ticks on dark background */
+    line-height: 1;
     opacity: 0.9;
-    display: inline-flex; /* Use inline-flex for better alignment of the ticks themselves */
-    align-items: center; /* Vertically center the ticks if they have height differences */
+    display: inline-flex;
+    align-items: center;
 }
 
 /* Blue tick for seen messages - applies only to 'right' (outgoing) messages that are 'seen' */
-.msg.right.seen .message-status { /* Targets right-aligned messages that also have the 'seen' class */
-    color: #4fc3f7; /* A nice WhatsApp-like blue */
+.msg.right.seen .message-status {
+    color: #4fc3f7; /* Keep the blue, it should contrast well */
 }
-
 
 /* Specific styling for left/right messages - ensure flex-direction is correct */
 .msg.left .message-content {
-    flex-direction: row; /* Text then status */
+    flex-direction: row;
 }
 
 .msg.right .message-content {
-    flex-direction: row; /* Text then status */
+    flex-direction: row;
 }
 
 /* Reply Quote inside message bubble */
 .reply-quote {
-    background-color: rgba(0, 0, 0, 0.05); /* Slightly darker background */
-    border-left: 3px solid #007bff; /* Blue line */
+    background-color: rgba(255, 255, 255, 0.1); /* Lighter transparent background */
+    border-left: 3px solid #007bff; /* Keep blue line */
     padding: 5px 8px;
-    margin-bottom: 8px; /* Space between quote and message text */
+    margin-bottom: 8px;
     border-radius: 4px;
-    font-size: 0.85em; /* Smaller text for quote */
-    color: #555;
+    font-size: 0.85em;
+    color: #ccc; /* Lighter text color */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -264,22 +263,22 @@ html, body {
 
 .reply-quote span {
     font-weight: 500;
-    color: #333;
+    color: #e0e0e0; /* Lighter text color */
 }
 
 /* Reply Box Indicator (at bottom above input) */
 #reply-box {
     padding: 10px 15px;
-    background-color: #f0f0f0;
+    background-color: #1f2c38; /* Darker background */
     border-left: 4px solid #007bff;
     font-size: 1em;
-    color: #444;
-    margin: 0 15px 0 15px; /* Adjust margin here, will be part of scrollable content */
+    color: #ccc; /* Lighter text color */
+    margin: 0 15px 0 15px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 #reply-text {
@@ -293,7 +292,7 @@ html, body {
 #cancel-reply {
     background: none;
     border: none;
-    color: #888;
+    color: #a0a0a0; /* Lighter color for close button */
     font-size: 1.2em;
     cursor: pointer;
     padding: 2px 5px;
@@ -301,24 +300,22 @@ html, body {
 }
 
 #cancel-reply:hover {
-    color: #333;
+    color: #f0f0f0;
 }
 
-/* Input Area - Now position fixed at the bottom */
+/* Input Area - Fixed at the bottom */
 #input-area {
     display: flex;
     align-items: flex-end;
     padding: 10px 15px;
-    background: #f0f0f0;
-    border-top: 1px solid #ddd;
+    background: #1f2c38; /* Darker input area background */
+    border-top: 1px solid #1a2732; /* Darker border */
     box-sizing: border-box;
-    /* NEW: Fixed position at the bottom */
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%; /* Take full width */
-    z-index: 100; /* Ensure it's on top */
-    /* Add padding-bottom for iOS Safe Area */
+    width: 100%;
+    z-index: 100;
     padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -326,8 +323,10 @@ html, body {
     flex: 1;
     padding: 14px 18px;
     border-radius: 28px;
-    border: 1px solid #ccc;
-    font-size: 0.95em; /* Changed from 1.05em to 1em to match message font size */
+    border: 1px solid #444f62; /* Darker border for message input */
+    background-color: #2a3b4c; /* Darker input background */
+    color: #f0f0f0; /* Lighter text color inside input */
+    font-size: 0.95em; /* Decreased font size */
     outline: none;
     resize: none;
     min-height: 48px;
@@ -336,12 +335,16 @@ html, body {
     -webkit-overflow-scrolling: touch;
 }
 
+#message::placeholder {
+    color: #999; /* Lighter placeholder text */
+}
+
 /* Send Button */
 #input-area button {
     margin-left: 10px;
     padding: 14px 22px;
     border-radius: 28px;
-    background: #10a37f;
+    background: #10a37f; /* Keep the bright green */
     color: white;
     border: none;
     font-weight: bold;
@@ -359,11 +362,11 @@ html, body {
     transform: translateY(2px);
 }
 
-/* Typing Status Indicator - now part of the content that scrolls */
+/* Typing Status Indicator */
 #typing-status {
     padding: 8px 15px;
     font-size: 0.9em;
-    color: #777;
+    color: #a0a0a0; /* Lighter color for typing status */
     min-height: 35px;
     text-align: center;
 }
