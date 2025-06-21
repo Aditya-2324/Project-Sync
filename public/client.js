@@ -108,15 +108,22 @@ function sendMessage() {
     }
 }
 
+// Inside socket.on("newMessage")
 socket.on("newMessage", (msg) => {
     chatHistory.push(msg); // Add new message to local history
     addMessage(msg); // Display the message
-    // Mark as seen if not from current user and chat page is active
-    if (msg.sender !== currentUser) { // Only mark messages from others as seen
-        socket.emit("markSeen", msg.timestamp); // Emit timestamp of the message that was seen
+    if (msg.sender !== currentUser) {
+        socket.emit("markSeen", msg.timestamp);
     }
-    // Auto-scroll the *window* to the bottom after adding new message
-    window.scrollTo(0, document.body.scrollHeight);
+    // New/Updated scrolling logic
+    // Scroll to the bottom of the document, or bring the typingStatus into view
+    // Using a timeout to allow browser to render new message and keyboard to settle
+    setTimeout(() => {
+        // Option 1: Scroll the very bottom of the body into view
+        window.scrollTo(0, document.body.scrollHeight);
+        // Option 2: Scroll the typing status element into view (might be more reliable on some devices)
+        // typingStatus.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 50); // Small delay to allow DOM to render and layout to settle
 });
 
 // Update an existing message (e.g., seen status)
