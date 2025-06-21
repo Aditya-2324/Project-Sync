@@ -35,7 +35,7 @@ socket.on("loginSuccess", (data) => {
     chatHistory = data.chatHistory;
     loginPage.style.display = "none";
     chatPage.style.display = "flex";
-    onlineStatus.textContent = `Welcome, ${currentUser}!`; // Initial status
+    // Removed initial "Welcome" message from here, handled by updateUsers
     updateChat(chatHistory); // Display initial chat history
     
     // Mark all other users' messages as seen when current user logs in
@@ -54,11 +54,11 @@ socket.on("loginFailed", () => {
 // --- User Status Updates ---
 socket.on("updateUsers", (users) => {
     let onlineUsers = Object.keys(users).filter(user => users[user] && user !== currentUser);
-    let statusText = `Users online: ${onlineUsers.join(', ')}`;
+    let statusText = `Online: ${onlineUsers.join(', ')}`;
     if (onlineUsers.length === 0) {
         statusText = "No other users online.";
     }
-    onlineStatus.textContent = `Welcome, ${currentUser}! ${statusText}`;
+    onlineStatus.textContent = statusText; // Only show other users' online status
 });
 
 // --- Typing Status ---
@@ -115,8 +115,7 @@ socket.on("newMessage", (msg) => {
     if (msg.sender !== currentUser) { // Only mark messages from others as seen
         socket.emit("markSeen", msg.timestamp); // Emit timestamp of the message that was seen
     }
-    // Auto-scroll to bottom only if user is already near the bottom
-    // This logic relies on the entire body being scrollable (flexbox fixed footer)
+    // Auto-scroll the *window* to the bottom after adding new message
     window.scrollTo(0, document.body.scrollHeight);
 });
 
@@ -169,6 +168,7 @@ function addMessage(msg) {
     msgDiv.setAttribute("data-timestamp", msg.timestamp); // Essential for updates
 
     // Add 'seen' class if message is already seen (for initial load)
+    // Only apply to messages sent by the current user
     if (msg.seen && msg.sender === currentUser) {
         msgDiv.classList.add('seen');
     }
