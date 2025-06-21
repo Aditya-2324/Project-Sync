@@ -337,7 +337,10 @@ messageInput.addEventListener("blur", stopTyping);
 messageInput.addEventListener("focus", () => {
     // Scroll to bottom when input is focused if it's not already at the very bottom
     // This helps with the virtual keyboard, scrolls the entire page
-    window.scrollTo(0, document.body.scrollHeight);
+    // Using a small timeout to ensure keyboard is up before scrolling
+    setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+    }, 50); // Small delay
 });
 
 // Handle send on Enter key
