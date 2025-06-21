@@ -22,35 +22,7 @@
   <div id="chat-page" style="display: none">
     <div class="chat-container">
       <div id="header"> <span id="online-status"></span>
-        <button id="clear-chat-btn">🗑️</button> ```
-
-**Note:** The `🗑️` is a Unicode emoji. Its appearance might vary slightly across different devices/browsers, but it's generally well-supported.
-
----
-
-### **2. Update `public/style.css` (for Input Box Size, Clear Chat Button, and Header Alignment)**
-
-We'll adjust the font size for the message input, style the new icon button, and tweak the header.
-
-Find and modify these sections in your `public/style.css`:
-
-**a) `#message` (Input Textarea Size):**
-Make its `font-size` the same as the messages (`1em`).
-
-```css
-#message {
-    flex: 1;
-    padding: 14px 18px;
-    border-radius: 28px;
-    border: 1px solid #ccc;
-    font-size: 1em; /* Changed from 1.05em to 1em to match message font size */
-    outline: none;
-    resize: none;
-    min-height: 48px;
-    max-height: 160px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
+        <button id="clear-chat-btn">🗑️</button> 
       </div>
 
       <div id="chat-box"></div>
