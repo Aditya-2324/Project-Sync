@@ -90,11 +90,6 @@ socket.on("stopTyping", (username) => {
         typingStatus.textContent = "";
     }
 });
-socket.on("typing", (username) => {
-    if (username !== currentUser) {
-        typingStatus.textContent = `${username} is typing...`;
-    }
-});
 
 // --- Message Handling ---
 function sendMessage() {
