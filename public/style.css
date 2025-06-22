@@ -381,7 +381,7 @@ html, body {
 #typing-status {
     padding: 8px 15px;
     font-size: 0.9em;
-    color: #4fc3f7; /* Changed to a bright blue for visibility */
+    color: white; /* Changed to a bright blue for visibility */
     min-height: 35px;
     text-align: center;
 }
