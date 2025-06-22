@@ -6,11 +6,11 @@
     -webkit-tap-highlight-color: transparent; /* Disable touch highlighting */
 }
 
-/* Base HTML & Body Styles */
+/* Base HTML & Body Styles - IMPORTANT structural changes here */
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: 100vh; /* Use vh for full viewport height */
     width: 100%;
     background-color: #000000; /* Fully black for the very edges of the screen */
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -18,13 +18,13 @@ html, body {
     -moz-osx-font-smoothing: grayscale;
     font-size: 18px;
     color: #e0e0e0; /* Default text color for dark background */
-    overflow-y: auto;
+    overflow: hidden; /* Prevent scrolling on html/body itself */
     overscroll-behavior-y: contain;
 }
 
-/* Overall app containers - now very dark */
+/* Overall app containers - IMPORTANT structural changes here */
 #chat-page, #login-page {
-    min-height: 100%;
+    height: 100vh; /* Also match viewport height */
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -106,33 +106,33 @@ html, body {
 
 /* Chat Page Specifics */
 .chat-container {
-    flex: 1;
+    flex: 1; /* Allows it to grow and fill available space */
     display: flex;
     flex-direction: column;
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    height: 100%; /* Ensures flex items within can take full height */
 }
 
-/* Header - NOW FIXED */
+/* Header - REMAINS FIXED */
 #header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background: #1a1a1a; /* Darker header matching login box */
+    background: #1a1a1a;
     color: white;
-    min-height: 60px; /* Header content height */
-    border-bottom: 1px solid #333; /* Darker border */
-    box-sizing: border-box; /* Ensures padding is included in the 60px min-height */
+    min-height: 60px;
+    border-bottom: 1px solid #333;
+    box-sizing: border-box;
 
-    /* NEW: Fixed position at the top */
-    position: fixed;
+    position: fixed; /* Should now work correctly relative to viewport */
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 101; /* Ensure it's above other content */
+    z-index: 101;
 }
 
 #online-status {
@@ -171,24 +171,25 @@ html, body {
     transform: translateY(1px);
 }
 
-/* Chat Box (Messages Area) */
+/* Chat Box (Messages Area) - NOW THE MAIN SCROLLABLE AREA */
 #chat-box {
     padding-left: 15px;
     padding-right: 15px;
-    /* NEW: Add padding-top to account for the fixed header height (60px + 15px top + 15px bottom padding) */
-    padding-top: 90px; /* Header is 60px min-height + 30px padding = 90px total height */
+    padding-top: 90px; /* Space for fixed header (60px min-height + 30px padding) */
+    padding-bottom: 120px; /* Space for fixed input area + potential mobile keyboard */
 
-    /* IMPORTANT: Consider removing or changing this image if it's light and doesn't suit a dark theme */
-    background-image: url('image_87c260.png'); /* Keep if you want the texture */
+    background-image: url('image_87c260.png');
     background-repeat: repeat;
     background-size: auto;
-    background-color: #0f0f0f; /* Very dark background for chat area */
+    background-color: #0f0f0f;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    justify-content: flex-end;
-    /* Ensure padding-bottom is still enough for fixed input and keyboard */
-    padding-bottom: 120px; /* Adjust if needed for keyboard */
+    flex-grow: 1; /* Allows it to expand and fill available height */
+    justify-content: flex-end; /* Keep messages at the bottom */
+    overflow-y: auto; /* Make this specific area scrollable */
+    -webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS devices */
+    flex-shrink: 1; /* Allows it to shrink if content is small */
+    position: relative; /* Needed to ensure z-index of messages/scroll */
 }
 
 /* Individual Message Styles */
@@ -282,7 +283,7 @@ html, body {
 /* Reply Box Indicator (at bottom above input) */
 #reply-box {
     padding: 10px 15px;
-    background-color: #1a1a1a; /* Darker background */
+    background-color: #1a1a1a;
     border-left: 4px solid #007bff;
     font-size: 1em;
     color: #ccc;
@@ -316,19 +317,20 @@ html, body {
     color: #f0f0f0;
 }
 
-/* Input Area - Fixed at the bottom */
+/* Input Area - REMAINS FIXED at the bottom */
 #input-area {
     display: flex;
     align-items: flex-end;
     padding: 10px 15px;
-    background: #1a1a1a; /* Darker input area background */
-    border-top: 1px solid #333; /* Darker border */
+    background: #1a1a1a;
+    border-top: 1px solid #333;
     box-sizing: border-box;
-    position: fixed;
+
+    position: fixed; /* Should now work correctly relative to viewport */
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 100; /* Input area z-index */
+    z-index: 100;
     padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -336,9 +338,9 @@ html, body {
     flex: 1;
     padding: 14px 18px;
     border-radius: 28px;
-    border: 1px solid #444; /* Darker border for message input */
-    background-color: #2a2a2a; /* Darker input background */
-    color: #f0f0f0; /* Lighter text color inside input */
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
     font-size: 0.95em;
     outline: none;
     resize: none;
