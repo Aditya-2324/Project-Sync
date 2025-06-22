@@ -36,7 +36,7 @@ socket.on("loginSuccess", (data) => {
     loginPage.style.display = "none";
     chatPage.style.display = "flex";
     updateChat(chatHistory); // Display initial chat history
-    
+
     // Mark all other users' messages as seen when current user logs in
     // This happens only once on initial load for messages already in history
     chatHistory.forEach(msg => {
@@ -66,18 +66,18 @@ const typingDelay = 1000; // Milliseconds
 
 // Inside typing() function
 function typing() {
-    console.log("Client: User started typing, emitting 'typing' event."); // ADD THIS
+    console.log("Client: User started typing, emitting 'typing' event.");
     socket.emit("typing");
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
-        console.log("Client: Typing delay ended, emitting 'stopTyping' event."); // ADD THIS
+        console.log("Client: Typing delay ended, emitting 'stopTyping' event.");
         socket.emit("stopTyping");
     }, typingDelay);
 }
 
-// Inside socket.on("typing")
+// Inside socket.on("typing") - This is the corrected single block
 socket.on("typing", (username) => {
-    console.log(`Client: Received 'typing' event from: ${username}`); // ADD THIS
+    console.log(`Client: Received 'typing' event from: ${username}`);
     if (username !== currentUser) {
         typingStatus.textContent = `${username} is typing...`;
     }
@@ -85,7 +85,7 @@ socket.on("typing", (username) => {
 
 // Inside socket.on("stopTyping")
 socket.on("stopTyping", (username) => {
-    console.log(`Client: Received 'stopTyping' event from: ${username}`); // ADD THIS
+    console.log(`Client: Received 'stopTyping' event from: ${username}`);
     if (username !== currentUser) {
         typingStatus.textContent = "";
     }
@@ -116,8 +116,16 @@ socket.on("newMessage", (msg) => {
         socket.emit("markSeen", msg.timestamp); // Emit timestamp of the message that was seen
     }
     // New/Updated scrolling logic for new messages
+    // Changed to scroll the chatBox to the last message for better UX
     setTimeout(() => {
-        messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        // Find the last message element and scroll to it
+        const lastMessage = chatBox.lastElementChild;
+        if (lastMessage) {
+            lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        } else {
+            // Fallback to scrolling chatBox directly if no messages
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
     }, 50); // Small delay
 });
 
@@ -161,7 +169,14 @@ function updateChat(history) {
     history.forEach(addMessage); // Add all messages
     // Scroll after all messages are added for initial load
     setTimeout(() => {
-        messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        // Find the last message element and scroll to it
+        const lastMessage = chatBox.lastElementChild;
+        if (lastMessage) {
+            lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        } else {
+            // Fallback to scrolling chatBox directly if no messages
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
     }, 100); // Slightly longer delay for initial load
 }
 
@@ -217,7 +232,7 @@ function addMessage(msg) {
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) { // Small threshold to start detecting swipe
             isSwiping = true;
             e.preventDefault(); // Prevent page scroll when swiping horizontally
-            
+
             // Clamp swipe distance for visual effect
             let clampedDeltaX = Math.min(Math.max(0, deltaX), 60); // Swipe right only for others
             if (msg.sender === currentUser) { // Allow swipe left for own messages
@@ -330,7 +345,13 @@ messageInput.addEventListener("focus", () => {
     // Scroll to bottom when input is focused if it's not already at the very bottom
     // This helps with the virtual keyboard, scrolls the entire page
     setTimeout(() => {
-        messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        const lastMessage = chatBox.lastElementChild;
+        if (lastMessage) {
+            lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        } else {
+            // Fallback to scrolling chatBox directly if no messages
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
     }, 50); // Small delay
 });
 
