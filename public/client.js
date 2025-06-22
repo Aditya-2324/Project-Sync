@@ -64,28 +64,35 @@ socket.on("updateUsers", (users) => {
 let typingTimer;
 const typingDelay = 1000; // Milliseconds
 
+// Inside typing() function
 function typing() {
+    console.log("Client: User started typing, emitting 'typing' event."); // ADD THIS
     socket.emit("typing");
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
+        console.log("Client: Typing delay ended, emitting 'stopTyping' event."); // ADD THIS
         socket.emit("stopTyping");
     }, typingDelay);
 }
 
-function stopTyping() {
-    clearTimeout(typingTimer);
-    socket.emit("stopTyping");
-}
-
+// Inside socket.on("typing")
 socket.on("typing", (username) => {
+    console.log(`Client: Received 'typing' event from: ${username}`); // ADD THIS
     if (username !== currentUser) {
         typingStatus.textContent = `${username} is typing...`;
     }
 });
 
+// Inside socket.on("stopTyping")
 socket.on("stopTyping", (username) => {
+    console.log(`Client: Received 'stopTyping' event from: ${username}`); // ADD THIS
     if (username !== currentUser) {
         typingStatus.textContent = "";
+    }
+});
+socket.on("typing", (username) => {
+    if (username !== currentUser) {
+        typingStatus.textContent = `${username} is typing...`;
     }
 });
 
