@@ -64,18 +64,29 @@ socket.on("updateUsers", (users) => {
 let typingTimer;
 const typingDelay = 1000; // Milliseconds
 
-// Inside typing() function
+// !!! FIX: Define stopTyping as a separate, accessible function !!!
+function stopTyping() {
+    console.log("Client: Calling stopTyping function (clearing timer, emitting event).");
+    clearTimeout(typingTimer); // Clear any pending typing timer
+    socket.emit("stopTyping");
+    // For the sending user, ensure their own typing status is cleared
+    // This part is already in sendMessage(), but keeping here for blur event too.
+    if (typingStatus.textContent && typingStatus.textContent.includes(currentUser)) {
+        typingStatus.textContent = "";
+    }
+}
+
 function typing() {
     console.log("Client: User started typing, emitting 'typing' event.");
     socket.emit("typing");
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
-        console.log("Client: Typing delay ended, emitting 'stopTyping' event.");
-        socket.emit("stopTyping");
+        console.log("Client: Typing delay ended, calling stopTyping function.");
+        stopTyping(); // Now correctly calls the defined function
     }, typingDelay);
 }
 
-// Inside socket.on("typing") - This is the corrected single block
+// Inside socket.on("typing")
 socket.on("typing", (username) => {
     console.log(`Client: Received 'typing' event from: ${username}`);
     if (username !== currentUser) {
@@ -104,8 +115,8 @@ function sendMessage() {
         messageInput.style.height = "auto"; // Reset textarea height
         replyTo = null; // Clear reply context
         replyBox.style.display = "none"; // Hide reply box
-        typingStatus.textContent = ""; // Clear typing status for self
-        stopTyping(); // Ensure stopTyping is sent
+        // typingStatus.textContent = ""; // This line can be removed as stopTyping() will handle or socket.on("stopTyping")
+        stopTyping(); // Now correctly calls the defined function
     }
 }
 
@@ -339,6 +350,7 @@ messageInput.addEventListener("input", function() {
     typing(); // Call your typing function
 });
 
+// !!! FIX: Now refers to the defined stopTyping function !!!
 messageInput.addEventListener("blur", stopTyping);
 
 messageInput.addEventListener("focus", () => {
