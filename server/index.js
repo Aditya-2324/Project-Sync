@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
         };
         chatHistory.push(message);
 
-        console.log(`Message from ${message.sender}: "${message.text}" (Reply to: ${message.replyTo})`);
+        // console.log(`Message from ${message.sender}: "${message.text}" (Reply to: ${message.replyTo})`);
         io.emit('newMessage', message); // Emit new message to all connected clients
     });
 
