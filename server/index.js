@@ -5,19 +5,15 @@ const io = require('socket.io')(http);
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // Updated to match Render's default port
 
-/**
- * PATH FIX: Your log shows index.js is at /src/server/index.js.
- * To reach the 'public' folder at the root, we must go up two levels.
- */
-const publicPath = path.join(__dirname, '..', '..', 'public');
+// --- PATH LOGIC ---
+// Since your file is in /src/server/index.js, we go up TWO levels to reach the root
+const rootDir = path.resolve(__dirname, '../../'); 
+const publicPath = path.join(rootDir, 'public');
+
+// Tell Express to serve files from the public folder
 app.use(express.static(publicPath));
-
-// Fallback to ensure index.html is served if the static middleware misses it
-app.get('*', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
 
 const saltRounds = 10;
 const users = {
@@ -46,7 +42,7 @@ io.on('connection', (socket) => {
                     io.emit('updateUsers', getUserStatus()); 
                     
                     // FIXED: Using backticks for template literals
-                    console.log(`${username} logged in.`);  
+                    console.log(${username} logged in.);  
                 } else { 
                     socket.emit('loginFailed');  
                 }  
@@ -116,7 +112,12 @@ function getUserStatus() {
     return status;
 }
 
+// Fallback: If no static file is found, serve index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
+
 http.listen(PORT, () => {
     // FIXED: Using backticks for template literals
-    console.log(`Server running on port ${PORT}`); 
+    console.log(Server running on port ${PORT}); 
 });
