@@ -78,11 +78,11 @@ typingStatus.textContent = "";
 }
 
 function typing() {
-console.log("Client: User started typing, emitting 'typing' event.");
+console.log(`Client: User started typing, emitting 'typing' event.`);
 socket.emit("typing");
 clearTimeout(typingTimer);
 typingTimer = setTimeout(() => {
-console.log("Client: Typing delay ended, calling stopTyping function.");
+console.log(`Client: Typing delay ended, calling stopTyping function.`);
 stopTyping(); // Now correctly calls the defined function
 }, typingDelay);
 }
