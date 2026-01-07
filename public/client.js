@@ -91,7 +91,7 @@ stopTyping(); // Now correctly calls the defined function
 socket.on("typing", (username) => {
 console.log(Client: Received 'typing' event from: ${username});
 if (username !== currentUser) {
-typingStatus.textContent = ${username} is typing...;
+typingStatus.textContent = `${username} is typing...`;
 }
 });
 
@@ -151,7 +151,7 @@ msgInHistory.seen = update.seen;
 }
 
 // Update DOM  
-    const msgDiv = document.querySelector([data-timestamp="${update.timestamp}"]);  
+    const msgDiv = document.querySelector(`[data-timestamp="${update.timestamp}"]`);  
     if (msgDiv) {  
         const smallTag = msgDiv.querySelector('.message-status'); // Use the class name  
         if (smallTag) {  
@@ -349,7 +349,7 @@ socket.emit("clearChat");
 // --- Textarea Auto-resize ---
 messageInput.addEventListener("input", function() {
 this.style.height = 'auto'; // Reset height
-this.style.height = (this.scrollHeight) + 'px'; // Set to scroll height
+this.style.height =` $(this.scrollHeight)px`; // Set to scroll height
 typing(); // Call your typing function
 });
 
