@@ -24,12 +24,11 @@ window.login = function () {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    if (!username || !password) {
-        loginError.textContent = "Please enter username and password.";
-        return;
-    }
-
+    if (username && password) {
     socket.emit("login", { username, password });
+} else {
+        loginError.textContent = "Please enter username and password.";
+    }
 };
 
 socket.on("loginSuccess", (data) => {
@@ -40,6 +39,11 @@ socket.on("loginSuccess", (data) => {
     chatPage.style.display = "flex";
 
     updateChat(chatHistory);
+    chatHistory.forEach(msg => {
+        if (msg.sender !== currentUser %% !msg.seen){
+            socket.emit("markSeen", msg.timestamp);
+        }
+    });
 });
 
 socket.on("loginFailed", () => {
@@ -52,7 +56,7 @@ socket.on("updateUsers", (users) => {
     );
 
     onlineStatus.textContent = onlineUsers.length
-        ? Online: ${onlineUsers.join(", ")}
+        ? `Online: ${onlineUsers.join(", ")}`
         : "No other users online.";
 });
 
@@ -61,7 +65,6 @@ let typingTimer;
 function stopTyping() {
     clearTimeout(typingTimer);
     socket.emit("stopTyping");
-    typingStatus.textContent = "";
 }
 
 function typing() {
@@ -72,7 +75,7 @@ function typing() {
 
 socket.on("typing", (username) => {
     if (username !== currentUser) {
-        typingStatus.textContent = ${username} is typing...;
+        typingStatus.textContent = `${username} is typing...`;
     }
 });
 
@@ -80,7 +83,7 @@ socket.on("stopTyping", () => {
     typingStatus.textContent = "";
 });
 
-function sendMessage() {
+window.sendMessage() = function () {
     const text = messageInput.value.trim();
     if (!text) return;
 
@@ -100,61 +103,25 @@ socket.on("newMessage", (msg) => {
     chatHistory.push(msg);
     addMessage(msg);
 
+    if (msg.sender !== currentUser) {
+        socket.emit("markSeen", msg.timestamp);
+    }
     setTimeout(() => {
         const last = chatBox.lastElementChild;
         if (last) last.scrollIntoView({ behavior: "smooth", block: "end" });
     }, 50);
 });
 
-function updateChat(history) {
-    chatBox.innerHTML = "";
-    history.forEach(addMessage);
-
-    setTimeout(() => {
-        const last = chatBox.lastElementChild;
-        if (last) last.scrollIntoView({ behavior: "smooth", block: "end" });
-    }, 100);
-}
-
-function addMessage(msg) {
-    const div = document.createElement("div");
-    div.className = msg.sender === currentUser ? "msg right" : "msg left";
-    div.dataset.timestamp = msg.timestamp;
-
-    if (msg.replyTo) {
-        const rq = document.createElement("div");
-        rq.className = "reply-quote";
-        rq.innerHTML = Replying to: <span>${msg.replyTo}</span>;
-        div.appendChild(rq);
-    }
-
-    const content = document.createElement("div");
-    content.className = "message-content";
-    content.innerHTML = `
-        <span class="message-text">${msg.text}</span>
-        <small class="message-status">${msg.seen ? "✓✓" : "✓"}</small>
-    `;
-    div.appendChild(content);
-
-    chatBox.appendChild(div);
-}
-
-function startReply(msg) {
-    replyTo = msg.text;
-    replyText.textContent = msg.text;
-    replyBox.style.display = "flex";
-    messageInput.focus();
-}
-
-cancelReplyBtn.addEventListener("click", () => {
-    replyTo = null;
-    replyBox.style.display = "none";
-});
-
-clearChatBtn.addEventListener("click", () => {
-    if (confirm("Clear all chat messages?")) {
-        socket.emit("clearChat");
-    }
+socket.on("messageUpdated", (updates) => {
+    updates.forEach(update => {
+        const el =
+document.querySelector(`[data-timestamp="${update.timestamp}]`);
+        if (el) {
+            const s = el.querySelector(".message-status");
+            if (s) s.textContent = update.seen ? "✓✓" : "✓";
+            el.classList.toggle("seen", update.seen);
+        }
+    });
 });
 
 socket.on("chatCleared", () => {
@@ -162,18 +129,57 @@ socket.on("chatCleared", () => {
     chatBox.innerHTML = "";
 });
 
-messageInput.addEventListener("input", function () {
-    this.style.height = "auto";
-    this.style.height = this.scrollHeight + "px";
-    typing();
-});
+function updateChat(history) {
+    chatBox.innerHTML = "";
+    history.forEach(addMessage);
+    setTimeout(() => { const last = chatBox.lastElementChild;
+                      if (last) last.scrollIntoView({ behavior: "smooth", block: "end"});
+                     }, 100);
+}
 
-messageInput.addEventListener("blur", stopTyping);
+function addMessage(msg) { const div = document.createElement("div");
+                          div.className = msg.sender === currentUser ? "msg right" : "msg left";
+                          div.dataset.timestamp = msg.timestamp;
 
-messageInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+    if (msg.seen && msg.sender === currentUser) {
+        div.classList.add("seen");
     }
-});
+                          
+    if(msg.replyTo) {
+        const r = document.createElement("div");
+        r.className = "reply-quote";
+        r.innerHTML = `Replying to: <span>$ {msg.replyTo}</span>`;
+        div.appendChild(r);
+    }
+
+    const content = document.createElement("div");
+    content.className = "message-content";
+    content.innerHTML = `<span class="message-text">${msg.text}</span><small class="messsage-status"${msg.seen ? "✓✓" : "✓"}</small>`;
+                          div.appendChild(content);
+                          chatBox.appendChild(div);
+                         }
+    cancelReplyBtn.addEventListener("click", () => {
+        replyTo = null;
+        replyBox.style.display = "none';
+    });
+
+    clearChatBtn.addEventListener("click", () => {
+        if(confirm("Clear all messages?"))
+            socket.emit("cleatChat");
+    });
+
+    messageInput.addEventListener("input", function()
+                                  {
+                                      this.style.height = "auto";
+                                      this.style.height = this.scrollHeight + "px";
+                                      typing();
+                                  });
+    messageInput.addEventListener("blur", stoTyping);
+
+    messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            window.sendMessage();
+        }
+    });
 });
