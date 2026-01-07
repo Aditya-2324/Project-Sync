@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const PORT = process.env.PORT || 3000;
 
 // Fix: Verify if your public folder is next to this file or one level up
-app.use(express.static(path.join(__dirname, 'public'))); 
+app.use(express.static(path.join(__dirname, '..', '..', 'public'))); 
 
 const saltRounds = 10;
 const users = {
