@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 10000; // Updated to match Render's default por
 // --- PATH LOGIC ---
 // Since your file is in /src/server/index.js, we go up TWO levels to reach the root
 const rootDir = path.resolve(__dirname, '../../'); 
-const publicPath = path.join(rootDir, 'public');
+const publicPath = path.join(process.cwd(), 'public');
 
 // Tell Express to serve files from the public folder
 app.use(express.static(publicPath));
