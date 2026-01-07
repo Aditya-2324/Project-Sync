@@ -1,74 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Project Sync Chat</title>
+Index.html
 
-  <link rel="stylesheet" href="style.css" />
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />  
+  <title>Project Sync Chat</title>  
+  <link rel="stylesheet" href="style.css?v=23" />  
+  <script defer src="/socket.io/socket.io.js"></script>  
+  <script defer src="client.js"></script>  
+</head>  
+<body>  
+  <div id="login-page">  
+    <div class="login-container">  
+      <h2>Project Sync</h2>  
+      <input id="username" placeholder="Username" autocomplete="username" />  
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />  
+      <button onclick="login()">Login</button>  
+      <p id="login-error" class="error"></p>  
+    </div>  
+  </div>    <div id="chat-page" style="display: none">  
+    <div class="chat-container">  
+      <div id="header">  
+        <span id="online-status"></span>  
+        <button id="clear-chat-btn">🗑️</button>  
+      </div>  <div id="chat-box"></div>  
+  <div id="reply-box" style="display: none;">  
+    Replying to: <span id="reply-text"></span>  
+    <button id="cancel-reply">X</button>  
+  </div>  
+  <div id="input-area">  
+    <textarea id="message" placeholder="Type your message..." rows="1"></textarea>  
+    <button onclick="sendMessage()">Send</button>  
+  </div>  
+  <div id="typing-status"></div>  
+</div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script defer src="client.js"></script>
-</head>
-
-<body>
-
-  <!-- LOGIN PAGE -->
-  <div id="login-page">
-    <div class="login-container">
-      <h2>Project Sync</h2>
-
-      <input
-        id="username"
-        type="text"
-        placeholder="Username"
-        autocomplete="username"
-      />
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      />
-
-      <button type="button" onclick="login()">Login</button>
-
-      <p id="login-error" class="error"></p>
-    </div>
-  </div>
-
-  <!-- CHAT PAGE -->
-  <div id="chat-page" style="display: none;">
-    <div class="chat-container">
-
-      <div id="header">
-        <span id="online-status"></span>
-        <button id="clear-chat-btn" type="button">🗑️</button>
-      </div>
-
-      <div id="chat-box"></div>
-
-      <div id="reply-box" style="display: none;">
-        Replying to: <span id="reply-text"></span>
-        <button id="cancel-reply" type="button">✕</button>
-      </div>
-
-      <div id="input-area">
-        <textarea
-          id="message"
-          rows="1"
-          placeholder="Type your message..."
-        ></textarea>
-
-        <button type="button" onclick="sendMessage()">Send</button>
-      </div>
-
-      <div id="typing-status"></div>
-
-    </div>
-  </div>
-
-</body>
+  </div>  
+</body>  
 </html>
