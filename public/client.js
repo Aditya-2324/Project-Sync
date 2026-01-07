@@ -53,11 +53,10 @@ loginError.textContent = "Invalid username or password.";
 
 // --- User Status Updates ---
 socket.on("updateUsers", (users) => {
-let onlineUsers = Object.keys(users).filter(user => users[user] && user !== currentUser);
-let statusText = Online: ${onlineUsers.join(', ')};
-if (onlineUsers.length === 0) {
-statusText = "No other users online.";
-}
+const onlineUsers = Object.keys(users).filter(user => users[user] && user !== currentUser);
+let statusText = onlineUsers.length
+    ? `Online: ${onlineUsers.join(', ')}`
+    : "No other users online.";
 onlineStatus.textContent = statusText; // Only show other users' online status
 });
 
