@@ -67,7 +67,7 @@ const typingDelay = 1000; // Milliseconds
 
 // !!! FIX: Define stopTyping as a separate, accessible function !!!
 function stopTyping() {
-console.log("Client: Calling stopTyping function (clearing timer, emitting event).");
+console.log(`Client: Calling stopTyping function (clearing timer, emitting event).`);
 clearTimeout(typingTimer); // Clear any pending typing timer
 socket.emit("stopTyping");
 // For the sending user, ensure their own typing status is cleared
