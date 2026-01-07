@@ -251,12 +251,12 @@ msgDiv.addEventListener('touchmove', (e) => {
         if (msg.sender === currentUser) { // Allow swipe left for own messages  
              clampedDeltaX = Math.max(-60, Math.min(0, deltaX));  
         }  
-        msgDiv.style.transform = translateX(${clampedDeltaX}px);  
+        msgDiv.style.transform = `translateX(${clampedDeltaX}px)`;  
     } else if (Math.abs(deltaY) > Math.abs(deltaX)) {  
          // If primarily vertical, it's a scroll, so don't prevent default  
         isSwiping = false;  
         // Clear any lingering transform from minor horizontal movement  
-        msgDiv.style.transform = translateX(0px);  
+        msgDiv.style.transform = `translateX(0px)`;  
     }  
 }, { passive: false });  
 
@@ -270,7 +270,7 @@ msgDiv.addEventListener('touchend', () => {
             startReply(msg);  
         }  
         // Snap back the message bubble  
-        msgDiv.style.transform = translateX(0px);  
+        msgDiv.style.transform = `translateX(0px)`;  
         isSwiping = false;  
     }  
 });  
@@ -300,10 +300,10 @@ msgDiv.addEventListener('mousemove', (e) => {
         if (msg.sender === currentUser) {  
              clampedDeltaX = Math.max(-60, Math.min(0, deltaX));  
         }  
-        msgDiv.style.transform = translateX(${clampedDeltaX}px);  
+        msgDiv.style.transform = `translateX(${clampedDeltaX}px)`;  
     } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {  
         isSwiping = false;  
-        msgDiv.style.transform = translateX(0px);  
+        msgDiv.style.transform = `translateX(0px)`;  
     }  
 });  
 
@@ -314,7 +314,7 @@ msgDiv.addEventListener('mouseup', () => {
         if (Math.abs(finalDeltaX) >= swipeThreshold) {  
             startReply(msg);  
         }  
-        msgDiv.style.transform = translateX(0px);  
+        msgDiv.style.transform = `translateX(0px)`;  
     }  
     mouseDown = false;  
     isSwiping = false;  
