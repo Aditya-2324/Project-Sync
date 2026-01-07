@@ -21,14 +21,12 @@ font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 font-size: 18px;
 color: #e0e0e0; / Default text color for dark background /
 overflow: hidden; / Prevent scrolling on html/body itself */
-height: 100%;
 overscroll-behavior-y: contain;
 }
 
 /* Overall app containers - IMPORTANT structural changes here /
 #chat-page, #login-page {
 height: 100vh; / Also match viewport height /
-min-height: 0;
 width: 100%;
 display: flex;
 flex-direction: column;
@@ -118,7 +116,6 @@ width: 100%;
 margin: 0 auto;
 box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
 height: 100%; / Ensures flex items within can take full height */
-min-height: 0;
 }
 
 /* Header - REMAINS FIXED */
@@ -146,6 +143,258 @@ flex-grow: 1;
 font-size: 1.15em;
 font-weight: 600;
 text-align: left;
+margin-right: 10px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+#clear-chat-btn {
+padding: 0;
+background-color: transparent;
+color: white;
+border-radius: 6px;
+font-size: 1.6em;
+cursor: pointer;
+border: none;
+transition: background 0.2s ease, transform 0.1s ease;
+box-shadow: none;
+width: 40px;
+height: 40px;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+#clear-chat-btn:hover {
+background-color: rgba(255, 255, 255, 0.1);
+}
+
+#clear-chat-btn:active {
+transform: translateY(1px);
+}
+
+/* Chat Box (Messages Area) - NOW THE MAIN SCROLLABLE AREA /
+#chat-box {
+padding-left: 15px;
+padding-right: 15px;
+padding-top: 90px; / Space for fixed header (60px min-height + 30px padding) /
+padding-bottom: 120px; / Space for fixed input area + potential mobile keyboard */
+
+background-image: url('image_87c260.png');  
+background-repeat: repeat;  
+background-size: auto;  
+background-color: #0f0f0f;  
+display: flex;  
+flex-direction: column;  
+flex-grow: 1; /* Allows it to expand and fill available height */  
+justify-content: flex-end; /* Keep messages at the bottom */  
+overflow-y: auto; /* Make this specific area scrollable */  
+-webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS devices */  
+flex-shrink: 1; /* Allows it to shrink if content is small */  
+position: relative; /* Needed to ensure z-index of messages/scroll */
+
+}
+
+/* Individual Message Styles */
+.msg {
+max-width: 80%;
+padding: 10px 14px;
+border-radius: 16px;
+position: relative;
+font-size: 15px;
+margin: 5px 0;
+word-wrap: break-word;
+word-break: break-word;
+line-height: 1.4;
+box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.13);
+transform: translateX(0);
+transition: transform 0.2s ease-out;
+color: #e0e0e0;
+}
+
+.msg.left {
+align-self: flex-start;
+background-color: #2a2a2a; /* Dark grey for incoming messages */
+border-top-left-radius: 8px;
+}
+
+.msg.right {
+align-self: flex-end;
+background-color: #128c7e; /* Darker green for outgoing messages */
+border-top-right-radius: 8px;
+}
+
+/* Container for message text and status icon */
+.message-content {
+display: flex;
+align-items: flex-end;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+.message-text {
+flex-shrink: 1;
+min-width: 0;
+white-space: pre-wrap;
+}
+
+.message-status {
+flex-shrink: 0;
+margin-left: auto;
+white-space: nowrap;
+font-size: 0.75em;
+color: #a0a0a0;
+line-height: 1;
+opacity: 0.9;
+display: inline-flex;
+align-items: center;
+}
+
+/* Blue tick for seen messages - applies only to 'right' (outgoing) messages that are 'seen' */
+.msg.right.seen .message-status {
+color: #4fc3f7;
+}
+
+/* Specific styling for left/right messages - ensure flex-direction is correct */
+.msg.left .message-content {
+flex-direction: row;
+}
+
+.msg.right .message-content {
+flex-direction: row;
+}
+
+/* Reply Quote inside message bubble */
+.reply-quote {
+background-color: rgba(255, 255, 255, 0.15);
+border-left: 3px solid #007bff;
+padding: 5px 8px;
+margin-bottom: 8px;
+border-radius: 4px;
+font-size: 0.85em;
+color: #ccc;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.reply-quote span {
+font-weight: 500;
+color: #e0e0e0;
+}
+
+/* Reply Box Indicator (at bottom above input) */
+#reply-box {
+padding: 10px 15px;
+background-color: #1a1a1a;
+border-left: 4px solid #007bff;
+font-size: 1em;
+color: #ccc;
+margin: 0 15px 0 15px;
+border-radius: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#reply-text {
+flex: 1;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+padding-right: 10px;
+}
+
+#cancel-reply {
+background: none;
+border: none;
+color: #a0a0a0;
+font-size: 1.2em;
+cursor: pointer;
+padding: 2px 5px;
+transition: color 0.2s ease;
+}
+
+#cancel-reply:hover {
+color: #f0f0f0;
+}
+
+/* Input Area - REMAINS FIXED at the bottom */
+#input-area {
+display: flex;
+align-items: flex-end;
+padding: 10px 15px;
+background: #1a1a1a;
+border-top: 1px solid #333;
+box-sizing: border-box;
+
+position: fixed; /* Should now work correctly relative to viewport */  
+bottom: 0;  
+left: 0;  
+width: 100%;  
+z-index: 100;  
+padding-bottom: env(safe-area-inset-bottom);
+
+}
+
+#message {
+flex: 1;
+padding: 14px 18px;
+border-radius: 28px;
+border: 1px solid #444;
+background-color: #2a2a2a;
+color: #f0f0f0;
+font-size: 0.95em;
+outline: none;
+resize: none;
+min-height: 48px;
+max-height: 160px;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+#message::placeholder {
+color: #888;
+}
+
+/* Send Button */
+#input-area button {
+margin-left: 10px;
+padding: 14px 22px;
+border-radius: 28px;
+background: #10a37f;
+color: white;
+border: none;
+font-weight: bold;
+cursor: pointer;
+font-size: 1.15em;
+min-width: 70px;
+transition: background 0.3s ease, transform 0.1s ease;
+}
+
+#input-area button:hover {
+background: #0e8a6f;
+}
+
+#input-area button:active {
+transform: translateY(2px);
+}
+
+/* Typing Status Indicator /
+#typing-status {
+padding: 8px 15px;
+font-size: 0.9em;
+color: white; / Changed to a bright blue for visibility */
+min-height: 35px;
+text-align: center;
+}
+
+/* --- Styles for Swipe to Reply --- */
+.msg.swiped-for-reply {
+transform: translateX(60px);
+}text-align: left;
 margin-right: 10px;
 white-space: nowrap;
 overflow: hidden;
