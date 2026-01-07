@@ -76,7 +76,7 @@ function addMessageToUI(msg) {
   if (!chatBox) return;
 
   const div = document.createElement("div");
-  div.className = msg ${msg.sender === currentUser ? "right" : "left"};
+  div.className = `msg ${msg.sender === currentUser ? "right" : "left"}`;
 
   let replyHtml = "";
   if (msg.replyTo) {
