@@ -44,7 +44,6 @@ chatHistory.forEach(msg => {
         socket.emit("markSeen", msg.timestamp);  
     }  
 });
-
 });
 
 socket.on("loginFailed", () => {
