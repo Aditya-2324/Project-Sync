@@ -55,7 +55,7 @@ socket.on("loginFailed", () => {
 socket.on("updateUsers", (users) => {
     let onlineUsers = Object.keys(users).filter(user => users[user] && user !== currentUser);
     // FIXED: Added backticks here
-    let statusText = 'Online: ${onlineUsers.join(', ')}';
+    let statusText = `Online: ${onlineUsers.join(', ')}`;
     if (onlineUsers.length === 0) {
         statusText = "No other users online.";
     }
@@ -85,7 +85,7 @@ function typing() {
 socket.on("typing", (username) => {
     if (username !== currentUser) {
         // FIXED: Added backticks
-        typingStatus.textContent = '${username} is typing...';
+        typingStatus.textContent = `${username} is typing...`;
     }
 });
 
