@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
                     io.emit('updateUsers', getUserStatus()); 
                     
                     // FIXED: Using backticks for template literals
-                    console.log(${username} logged in.);  
+                    console.log(`${username} logged in.`);  
                 } else { 
                     socket.emit('loginFailed');  
                 }  
@@ -118,5 +118,5 @@ function getUserStatus() {
 
 http.listen(PORT, () => {
     // FIXED: Using backticks for template literals
-    console.log(Server running on port ${PORT}); 
+    console.log(`Server running on port ${PORT}`); 
 });
