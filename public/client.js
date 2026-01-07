@@ -54,7 +54,7 @@ loginError.textContent = "Invalid username or password.";
 // --- User Status Updates ---
 socket.on("updateUsers", (users) => {
 let onlineUsers = Object.keys(users).filter(user => users[user] && user !== currentUser);
-let statusText = Online: ${onlineUsers.join(', ')};
+let statusText = `Online: ${onlineUsers.join(', ')}`;
 if (onlineUsers.length === 0) {
 statusText = "No other users online.";
 }
@@ -89,15 +89,15 @@ stopTyping(); // Now correctly calls the defined function
 
 // Inside socket.on("typing")
 socket.on("typing", (username) => {
-console.log(Client: Received 'typing' event from: ${username});
+console.log(`Client: Received 'typing' event from: ${username}`);
 if (username !== currentUser) {
-typingStatus.textContent = ${username} is typing...;
+typingStatus.textContent = `${username} is typing...`;
 }
 });
 
 // Inside socket.on("stopTyping")
 socket.on("stopTyping", (username) => {
-console.log(Client: Received 'stopTyping' event from: ${username});
+console.log(`Client: Received 'stopTyping' event from: ${username}`);
 if (username !== currentUser) {
 typingStatus.textContent = "";
 }
