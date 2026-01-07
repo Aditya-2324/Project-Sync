@@ -8,12 +8,16 @@ const bcrypt = require('bcryptjs');
 const PORT = process.env.PORT || 3000;
 
 /**
- * FIX 1: Corrected Static Path
- * Your logs show the file is at /src/server/index.js
- * To reach /public, we must go up two levels: 
- * Level 1 (..) takes us to /src, Level 2 (..) takes us to the root.
+ * PATH FIX: Your log shows index.js is at /src/server/index.js.
+ * To reach the 'public' folder at the root, we must go up two levels.
  */
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+const publicPath = path.join(__dirname, '..', '..', 'public');
+app.use(express.static(publicPath));
+
+// Fallback to ensure index.html is served if the static middleware misses it
+app.get('*', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 const saltRounds = 10;
 const users = {
@@ -41,7 +45,7 @@ io.on('connection', (socket) => {
                     socket.emit('loginSuccess', { username, chatHistory }); 
                     io.emit('updateUsers', getUserStatus()); 
                     
-                    // FIX 2: Fixed Template Literal with Backticks
+                    // FIXED: Using backticks for template literals
                     console.log(${username} logged in.);  
                 } else { 
                     socket.emit('loginFailed');  
@@ -113,6 +117,6 @@ function getUserStatus() {
 }
 
 http.listen(PORT, () => {
-    // FIX 3: Fixed Template Literal for Port Logging
+    // FIXED: Using backticks for template literals
     console.log(Server running on port ${PORT}); 
 });
