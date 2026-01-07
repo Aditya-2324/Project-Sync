@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
                     io.emit('updateUsers', getUserStatus()); 
                     
                     // FIXED: Using backticks for template literals
-                    console.log(${username} logged in.);  
+                    console.log(`${username} logged in.`);  
                 } else { 
                     socket.emit('loginFailed');  
                 }  
