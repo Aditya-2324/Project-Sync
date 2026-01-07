@@ -89,7 +89,7 @@ stopTyping(); // Now correctly calls the defined function
 
 // Inside socket.on("typing")
 socket.on("typing", (username) => {
-console.log(Client: Received 'typing' event from: ${username});
+console.log(`Client: Received 'typing' event from: ${username}`);
 if (username !== currentUser) {
 typingStatus.textContent = `${username} is typing...`;
 }
