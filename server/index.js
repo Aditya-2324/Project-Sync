@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
 
                     socket.emit('loginSuccess', { username, chatHistory }); 
                     io.emit('updateUsers', getUserStatus()); 
-                    console.log(${username} logged in.);  
+                    console.log('${username} logged in.');  
                 } else { 
                     socket.emit('loginFailed');  
                 }  
@@ -106,5 +106,5 @@ function getUserStatus() {
 }
 
 http.listen(PORT, () => {
-    console.log(Server running on port ${PORT}); // Fixed template literal
+    console.log('Server running on port ${PORT}'); // Fixed template literal
 });
