@@ -7,8 +7,12 @@ const bcrypt = require('bcryptjs');
 
 const PORT = process.env.PORT || 10000;
 
-// SAFE PATH LOGIC: Points to the 'public' folder at the project root
+// SAFE PATH LOGIC: Point directly to the root 'public' folder
 const publicPath = path.join(process.cwd(), 'public');
+
+// Debugging: This will print the exact path the server is searching in your Render logs
+console.log(`Server looking for files in: ${publicPath}`);
+
 app.use(express.static(publicPath));
 
 const saltRounds = 10;
@@ -74,7 +78,7 @@ function getUserStatus() {
     return status;
 }
 
-// Fallback: Ensure the browser always finds index.html
+// Fallback: This ensures index.html is served if the user hits the root
 app.get('*', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
