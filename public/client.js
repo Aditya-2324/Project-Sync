@@ -1,93 +1,121 @@
 const socket = io();
 
-let currentUser = null;
-let chatHistory = [];
-let replyTo = null;
-
-// DOM Elements
+/* ------------------ DOM ELEMENTS ------------------ */
 const loginPage = document.getElementById("login-page");
 const chatPage = document.getElementById("chat-page");
+
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
 const loginError = document.getElementById("login-error");
-const onlineStatus = document.getElementById("online-status");
+
 const chatBox = document.getElementById("chat-box");
 const messageInput = document.getElementById("message");
 const typingStatus = document.getElementById("typing-status");
-const replyBox = document.getElementById("reply-box");
-const replyText = document.getElementById("reply-text");
-const cancelReplyBtn = document.getElementById("cancel-reply");
+const onlineStatus = document.getElementById("online-status");
 const clearChatBtn = document.getElementById("clear-chat-btn");
 
-/* ---------------- SCROLL FIX ---------------- */
-function scrollToBottom(smooth = true) {
-    chatBox.scrollTo({
-        top: chatBox.scrollHeight,
-        behavior: smooth ? "smooth" : "auto"
-    });
-}
-/* ------------------------------------------- */
+/* ------------------ STATE ------------------ */
+let currentUser = null;
+let typingTimeout = null;
 
-// Login
+/* ------------------ LOGIN ------------------ */
 function login() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
-    if (username && password) {
-        socket.emit("login", { username, password });
-    } else {
-        loginError.textContent = "Please enter username and password.";
+
+    if (!username || !password) {
+        loginError.textContent = "Username and password required";
+        return;
     }
+
+    socket.emit("login", { username, password });
 }
 
-socket.on("loginSuccess", (data) => {
-    currentUser = data.username;
-    chatHistory = data.chatHistory;
+passwordInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") login();
+});
 
+/* ------------------ SOCKET EVENTS ------------------ */
+socket.on("loginSuccess", ({ username, chatHistory }) => {
+    currentUser = username;
     loginPage.style.display = "none";
-    chatPage.style.display = "flex";
+    chatPage.style.display = "block";
+    loginError.textContent = "";
 
-    updateChat(chatHistory);
+    chatBox.innerHTML = "";
+    chatHistory.forEach(addMessage);
 
-    chatHistory.forEach(msg => {
-        if (msg.sender !== currentUser && !msg.seen) {
-            socket.emit("markSeen", msg.timestamp);
-        }
-    });
-
-    setTimeout(() => scrollToBottom(false), 100);
+    scrollToBottom(true);
 });
 
 socket.on("loginFailed", () => {
-    loginError.textContent = "Invalid username or password.";
+    loginError.textContent = "Invalid username or password";
 });
 
-// Online users
+/* ------------------ USERS ONLINE ------------------ */
 socket.on("updateUsers", (users) => {
-    const online = Object.keys(users).filter(u => users[u] && u !== currentUser);
-    onlineStatus.textContent = online.length
-        ? `Online: ${online.join(", ")}`
-        : "No other users online.";
+    const online = Object.entries(users)
+        .filter(([_, v]) => v)
+        .map(([u]) => u)
+        .join(", ");
+    onlineStatus.textContent = online ? `Online: ${online}` : "No users online";
 });
 
-// Typing indicator
-let typingTimer;
-const typingDelay = 1000;
+/* ------------------ MESSAGES ------------------ */
+function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
 
-function stopTyping() {
-    clearTimeout(typingTimer);
+    socket.emit("sendMessage", { text });
+    messageInput.value = "";
     socket.emit("stopTyping");
-    typingStatus.textContent = "";
+
+    messageInput.style.height = "auto";
 }
 
-function typing() {
+socket.on("newMessage", (message) => {
+    addMessage(message);
+    scrollToBottom();
+});
+
+function addMessage(message) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message " + (message.sender === currentUser ? "me" : "other");
+
+    msgDiv.innerHTML = `
+        <div class="sender">${message.sender}</div>
+        <div class="text">${message.text}</div>
+    `;
+
+    chatBox.appendChild(msgDiv);
+}
+
+/* ------------------ SCROLL FIX ------------------ */
+function scrollToBottom(force = false) {
+    const nearBottom =
+        chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100;
+
+    if (nearBottom || force) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+/* ------------------ TYPING ------------------ */
+messageInput.addEventListener("input", () => {
     socket.emit("typing");
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(stopTyping, typingDelay);
-}
 
-socket.on("typing", (username) => {
-    if (username !== currentUser) {
-        typingStatus.textContent = `${username} is typing...`;
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        socket.emit("stopTyping");
+    }, 800);
+
+    messageInput.style.height = "auto";
+    messageInput.style.height = messageInput.scrollHeight + "px";
+});
+
+socket.on("typing", (user) => {
+    if (user !== currentUser) {
+        typingStatus.textContent = `${user} is typing...`;
     }
 });
 
@@ -95,57 +123,20 @@ socket.on("stopTyping", () => {
     typingStatus.textContent = "";
 });
 
-// Send message
-function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text) return;
-
-    socket.emit("sendMessage", { text, replyTo });
-
-    messageInput.value = "";
-    messageInput.style.height = "auto";
-    replyTo = null;
-    replyBox.style.display = "none";
-
-    stopTyping();
-}
-
-socket.on("newMessage", (msg) => {
-    chatHistory.push(msg);
-    addMessage(msg);
-
-    if (msg.sender !== currentUser) {
-        socket.emit("markSeen", msg.timestamp);
+/* ------------------ CLEAR CHAT ------------------ */
+clearChatBtn.addEventListener("click", () => {
+    if (confirm("Clear chat for everyone?")) {
+        socket.emit("clearChat");
     }
-
-    setTimeout(scrollToBottom, 50);
 });
 
-// Seen updates
-socket.on("messagesUpdated", (updates) => {
-    updates.forEach(update => {
-        const msg = chatHistory.find(m => m.timestamp === update.timestamp);
-        if (msg) msg.seen = update.seen;
-
-        const el = document.querySelector(`[data-timestamp="${update.timestamp}"]`);
-        if (el) {
-            const status = el.querySelector(".message-status");
-            if (status) status.textContent = update.seen ? "✓✓" : "✓";
-            el.classList.toggle("seen", update.seen);
-        }
-    });
-});
-
-// Clear chat
 socket.on("chatCleared", () => {
-    chatHistory = [];
     chatBox.innerHTML = "";
-    typingStatus.textContent = "Chat cleared";
-    setTimeout(() => typingStatus.textContent = "", 2000);
 });
 
-// Initial render
-function updateChat(history) {
+/* ------------------ SEND BUTTON ------------------ */
+window.sendMessage = sendMessage;
+window.login = login;function updateChat(history) {
     chatBox.innerHTML = "";
     history.forEach(addMessage);
     setTimeout(() => scrollToBottom(false), 100);
