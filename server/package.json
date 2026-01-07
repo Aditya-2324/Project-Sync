@@ -1,9 +1,9 @@
 {
   "name": "chatgpt-style-chat",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/server/index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
