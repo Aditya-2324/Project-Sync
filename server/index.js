@@ -119,5 +119,5 @@ app.get('*', (req, res) => {
 
 http.listen(PORT, () => {
     // FIXED: Using backticks for template literals
-    console.log(Server running on port ${PORT}); 
+    console.log(`Server running on port ${PORT}`); 
 });
