@@ -209,7 +209,7 @@ if (msg.seen && msg.sender === currentUser) {
 if (msg.replyTo) {  
     const replyQuoteDiv = document.createElement("div");  
     replyQuoteDiv.className = "reply-quote";  
-    replyQuoteDiv.innerHTML = Replying to: <span>${msg.replyTo}</span>;  
+    replyQuoteDiv.innerHTML = `Replying to: <span>${msg.replyTo}</span>`;  
     msgDiv.appendChild(replyQuoteDiv);  
 }  
 
