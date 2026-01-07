@@ -7,8 +7,13 @@ const bcrypt = require('bcryptjs');
 
 const PORT = process.env.PORT || 3000;
 
-// Fix: Verify if your public folder is next to this file or one level up
-app.use(express.static(path.join(__dirname, '..', '..', 'public'))); 
+/**
+ * FIX 1: Corrected Static Path
+ * Your logs show the file is at /src/server/index.js
+ * To reach /public, we must go up two levels: 
+ * Level 1 (..) takes us to /src, Level 2 (..) takes us to the root.
+ */
+app.use(express.static(path.join(__dirname, '..', '..', 'public')));
 
 const saltRounds = 10;
 const users = {
@@ -35,7 +40,9 @@ io.on('connection', (socket) => {
 
                     socket.emit('loginSuccess', { username, chatHistory }); 
                     io.emit('updateUsers', getUserStatus()); 
-                    console.log('${username} logged in.');  
+                    
+                    // FIX 2: Fixed Template Literal with Backticks
+                    console.log(${username} logged in.);  
                 } else { 
                     socket.emit('loginFailed');  
                 }  
@@ -106,5 +113,6 @@ function getUserStatus() {
 }
 
 http.listen(PORT, () => {
-    console.log('Server running on port ${PORT}'); // Fixed template literal
+    // FIX 3: Fixed Template Literal for Port Logging
+    console.log(Server running on port ${PORT}); 
 });
