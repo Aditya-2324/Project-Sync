@@ -5,14 +5,10 @@ const io = require('socket.io')(http);
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const PORT = process.env.PORT || 10000; // Updated to match Render's default port
+const PORT = process.env.PORT || 10000;
 
-// --- PATH LOGIC ---
-// Since your file is in /src/server/index.js, we go up TWO levels to reach the root
-const rootDir = path.resolve(__dirname, '../../'); 
+// SAFE PATH LOGIC: Points to the 'public' folder at the project root
 const publicPath = path.join(process.cwd(), 'public');
-
-// Tell Express to serve files from the public folder
 app.use(express.static(publicPath));
 
 const saltRounds = 10;
@@ -40,8 +36,6 @@ io.on('connection', (socket) => {
 
                     socket.emit('loginSuccess', { username, chatHistory }); 
                     io.emit('updateUsers', getUserStatus()); 
-                    
-                    // FIXED: Using backticks for template literals
                     console.log(`${username} logged in.`);  
                 } else { 
                     socket.emit('loginFailed');  
@@ -52,17 +46,8 @@ io.on('connection', (socket) => {
         }  
     });  
 
-    socket.on('typing', () => {  
-        if (currentUser) socket.broadcast.emit('typing', currentUser);  
-    });  
-
-    socket.on('stopTyping', () => {  
-        if (currentUser) socket.broadcast.emit('stopTyping', currentUser);  
-    });  
-
     socket.on('sendMessage', (msg) => {  
         if (!currentUser || typeof msg.text !== 'string' || !msg.text.trim()) return;  
-
         const message = {  
             sender: currentUser,  
             text: msg.text.trim(),  
@@ -72,27 +57,6 @@ io.on('connection', (socket) => {
         };  
         chatHistory.push(message);  
         io.emit('newMessage', message); 
-    });  
-
-    socket.on('markSeen', (timestamp) => {  
-        if (!currentUser) return;  
-        let updatedMessages = [];  
-        const message = chatHistory.find(msg => msg.timestamp === timestamp && msg.sender !== currentUser);  
-
-        if (message && !message.seen) {  
-            message.seen = true;  
-            updatedMessages.push({ timestamp: message.timestamp, seen: true });  
-        }  
-
-        if (updatedMessages.length > 0) {  
-            io.emit('messagesUpdated', updatedMessages);  
-        }  
-    });  
-
-    socket.on('clearChat', () => {  
-        if (!currentUser) return;  
-        chatHistory = []; 
-        io.emit('chatCleared'); 
     });  
 
     socket.on('disconnect', () => {  
@@ -106,18 +70,15 @@ io.on('connection', (socket) => {
 
 function getUserStatus() {
     const status = {};
-    for (const user in users) {
-        status[user] = users[user].online;
-    }
+    for (const user in users) { status[user] = users[user].online; }
     return status;
 }
 
-// Fallback: If no static file is found, serve index.html
+// Fallback: Ensure the browser always finds index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 http.listen(PORT, () => {
-    // FIXED: Using backticks for template literals
     console.log(`Server running on port ${PORT}`); 
 });
