@@ -2,7 +2,7 @@ const socket = io();
 
 let currentUser = null;
 let chatHistory = [];
-let replyTo = null; // Stores the text being replied to
+let replyTo = null;
 
 // DOM Elements
 const loginPage = document.getElementById("login-page");
@@ -17,9 +17,18 @@ const typingStatus = document.getElementById("typing-status");
 const replyBox = document.getElementById("reply-box");
 const replyText = document.getElementById("reply-text");
 const cancelReplyBtn = document.getElementById("cancel-reply");
-const clearChatBtn = document.getElementById("clear-chat-btn"); // Clear Chat Button
+const clearChatBtn = document.getElementById("clear-chat-btn");
 
-// --- Login Logic ---
+/* ---------------- SCROLL FIX ---------------- */
+function scrollToBottom(smooth = true) {
+    chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: smooth ? "smooth" : "auto"
+    });
+}
+/* ------------------------------------------- */
+
+// Login
 function login() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
@@ -33,119 +42,179 @@ function login() {
 socket.on("loginSuccess", (data) => {
     currentUser = data.username;
     chatHistory = data.chatHistory;
+
     loginPage.style.display = "none";
     chatPage.style.display = "flex";
-    updateChat(chatHistory); // Display initial chat history
 
-    // Mark all other users' messages as seen when current user logs in
-    // This happens only once on initial load for messages already in history
+    updateChat(chatHistory);
+
     chatHistory.forEach(msg => {
         if (msg.sender !== currentUser && !msg.seen) {
             socket.emit("markSeen", msg.timestamp);
         }
     });
+
+    setTimeout(() => scrollToBottom(false), 100);
 });
 
 socket.on("loginFailed", () => {
     loginError.textContent = "Invalid username or password.";
 });
 
-// --- User Status Updates ---
+// Online users
 socket.on("updateUsers", (users) => {
-    let onlineUsers = Object.keys(users).filter(user => users[user] && user !== currentUser);
-    let statusText = `Online: ${onlineUsers.join(', ')}`;
-    if (onlineUsers.length === 0) {
-        statusText = "No other users online.";
-    }
-    onlineStatus.textContent = statusText; // Only show other users' online status
+    const online = Object.keys(users).filter(u => users[u] && u !== currentUser);
+    onlineStatus.textContent = online.length
+        ? `Online: ${online.join(", ")}`
+        : "No other users online.";
 });
 
-// --- Typing Status ---
+// Typing indicator
 let typingTimer;
-const typingDelay = 1000; // Milliseconds
+const typingDelay = 1000;
 
-// !!! FIX: Define stopTyping as a separate, accessible function !!!
 function stopTyping() {
-    console.log("Client: Calling stopTyping function (clearing timer, emitting event).");
-    clearTimeout(typingTimer); // Clear any pending typing timer
+    clearTimeout(typingTimer);
     socket.emit("stopTyping");
-    // For the sending user, ensure their own typing status is cleared
-    // This part is already in sendMessage(), but keeping here for blur event too.
-    if (typingStatus.textContent && typingStatus.textContent.includes(currentUser)) {
-        typingStatus.textContent = "";
-    }
+    typingStatus.textContent = "";
 }
 
 function typing() {
-    console.log("Client: User started typing, emitting 'typing' event.");
     socket.emit("typing");
     clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-        console.log("Client: Typing delay ended, calling stopTyping function.");
-        stopTyping(); // Now correctly calls the defined function
-    }, typingDelay);
+    typingTimer = setTimeout(stopTyping, typingDelay);
 }
 
-// Inside socket.on("typing")
 socket.on("typing", (username) => {
-    console.log(`Client: Received 'typing' event from: ${username}`);
     if (username !== currentUser) {
         typingStatus.textContent = `${username} is typing...`;
     }
 });
 
-// Inside socket.on("stopTyping")
-socket.on("stopTyping", (username) => {
-    console.log(`Client: Received 'stopTyping' event from: ${username}`);
-    if (username !== currentUser) {
-        typingStatus.textContent = "";
-    }
+socket.on("stopTyping", () => {
+    typingStatus.textContent = "";
 });
 
-// --- Message Handling ---
+// Send message
 function sendMessage() {
     const text = messageInput.value.trim();
-    if (text) {
-        const messageToSend = {
-            text: text,
-            replyTo: replyTo, // Include replyTo data
-        };
-        socket.emit("sendMessage", messageToSend);
-        messageInput.value = ""; // Clear input
-        messageInput.style.height = "auto"; // Reset textarea height
-        replyTo = null; // Clear reply context
-        replyBox.style.display = "none"; // Hide reply box
-        // typingStatus.textContent = ""; // This line can be removed as stopTyping() will handle or socket.on("stopTyping")
-        stopTyping(); // Now correctly calls the defined function
-    }
+    if (!text) return;
+
+    socket.emit("sendMessage", { text, replyTo });
+
+    messageInput.value = "";
+    messageInput.style.height = "auto";
+    replyTo = null;
+    replyBox.style.display = "none";
+
+    stopTyping();
 }
 
 socket.on("newMessage", (msg) => {
-    chatHistory.push(msg); // Add new message to local history
-    addMessage(msg); // Display the message
-    if (msg.sender !== currentUser) { // Only mark messages from others as seen
-        socket.emit("markSeen", msg.timestamp); // Emit timestamp of the message that was seen
+    chatHistory.push(msg);
+    addMessage(msg);
+
+    if (msg.sender !== currentUser) {
+        socket.emit("markSeen", msg.timestamp);
     }
-    // New/Updated scrolling logic for new messages
-    // Changed to scroll the chatBox to the last message for better UX
-    setTimeout(() => {
-        // Find the last message element and scroll to it
-        const lastMessage = chatBox.lastElementChild;
-        if (lastMessage) {
-            lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        } else {
-            // Fallback to scrolling chatBox directly if no messages
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    }, 50); // Small delay
+
+    setTimeout(scrollToBottom, 50);
 });
 
-// Update an existing message (e.g., seen status)
-socket.on('messagesUpdated', (updatedMessages) => {
-    updatedMessages.forEach(update => {
-        // Update local chatHistory array
-        const msgInHistory = chatHistory.find(msg => msg.timestamp === update.timestamp);
-        if (msgInHistory) {
+// Seen updates
+socket.on("messagesUpdated", (updates) => {
+    updates.forEach(update => {
+        const msg = chatHistory.find(m => m.timestamp === update.timestamp);
+        if (msg) msg.seen = update.seen;
+
+        const el = document.querySelector(`[data-timestamp="${update.timestamp}"]`);
+        if (el) {
+            const status = el.querySelector(".message-status");
+            if (status) status.textContent = update.seen ? "✓✓" : "✓";
+            el.classList.toggle("seen", update.seen);
+        }
+    });
+});
+
+// Clear chat
+socket.on("chatCleared", () => {
+    chatHistory = [];
+    chatBox.innerHTML = "";
+    typingStatus.textContent = "Chat cleared";
+    setTimeout(() => typingStatus.textContent = "", 2000);
+});
+
+// Initial render
+function updateChat(history) {
+    chatBox.innerHTML = "";
+    history.forEach(addMessage);
+    setTimeout(() => scrollToBottom(false), 100);
+}
+
+// Render message
+function addMessage(msg) {
+    const div = document.createElement("div");
+    div.className = `msg ${msg.sender === currentUser ? "right" : "left"}`;
+    div.dataset.timestamp = msg.timestamp;
+
+    if (msg.seen && msg.sender === currentUser) {
+        div.classList.add("seen");
+    }
+
+    if (msg.replyTo) {
+        const rq = document.createElement("div");
+        rq.className = "reply-quote";
+        rq.textContent = msg.replyTo;
+        div.appendChild(rq);
+    }
+
+    div.innerHTML += `
+        <div class="message-content">
+            <span>${msg.text}</span>
+            <small class="message-status">${msg.seen ? "✓✓" : "✓"}</small>
+        </div>
+    `;
+
+    div.addEventListener("click", () => startReply(msg));
+    chatBox.appendChild(div);
+}
+
+// Reply
+function startReply(msg) {
+    replyTo = msg.text;
+    replyText.textContent = msg.text;
+    replyBox.style.display = "flex";
+    messageInput.focus();
+}
+
+cancelReplyBtn.onclick = () => {
+    replyTo = null;
+    replyBox.style.display = "none";
+};
+
+// Clear chat
+clearChatBtn.onclick = () => {
+    if (confirm("Clear all messages?")) {
+        socket.emit("clearChat");
+    }
+};
+
+// Auto resize + typing
+messageInput.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = this.scrollHeight + "px";
+    typing();
+});
+
+messageInput.addEventListener("blur", stopTyping);
+
+// Send on Enter
+messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});        if (msgInHistory) {
             msgInHistory.seen = update.seen;
         }
 
