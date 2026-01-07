@@ -67,7 +67,7 @@ const typingDelay = 1000; // Milliseconds
 
 // !!! FIX: Define stopTyping as a separate, accessible function !!!
 function stopTyping() {
-console.log("Client: Calling stopTyping function (clearing timer, emitting event).");
+console.log(`Client: Calling stopTyping function (clearing timer, emitting event).`);
 clearTimeout(typingTimer); // Clear any pending typing timer
 socket.emit("stopTyping");
 // For the sending user, ensure their own typing status is cleared
@@ -78,11 +78,11 @@ typingStatus.textContent = "";
 }
 
 function typing() {
-console.log("Client: User started typing, emitting 'typing' event.");
+console.log(`Client: User started typing, emitting 'typing' event.`);
 socket.emit("typing");
 clearTimeout(typingTimer);
 typingTimer = setTimeout(() => {
-console.log("Client: Typing delay ended, calling stopTyping function.");
+console.log(`Client: Typing delay ended, calling stopTyping function.`);
 stopTyping(); // Now correctly calls the defined function
 }, typingDelay);
 }
@@ -97,7 +97,7 @@ typingStatus.textContent = `${username} is typing...`;
 
 // Inside socket.on("stopTyping")
 socket.on("stopTyping", (username) => {
-console.log(Client: Received 'stopTyping' event from: ${username});
+console.log(`Client: Received 'stopTyping' event from: ${username}`);
 if (username !== currentUser) {
 typingStatus.textContent = "";
 }
