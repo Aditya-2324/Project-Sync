@@ -1,14 +1,12 @@
-/* Universal Reset */
 
 {
 margin: 0;
 padding: 0;
 box-sizing: border-box;
--webkit-tap-highlight-color: transparent; /* Disable touch highlighting */
+-webkit-tap-highlight-color: transparent; 
 }
 
-
-{
+#html/body {
 margin: 0;
 padding: 0;
 height: 100vh;
@@ -23,24 +21,20 @@ overflow: hidden;
 overscroll-behavior-y: contain;
 }
 
-
-.{
+#chat-page, #login-page{
 height: 100vh;
 width: 100%;
 display: flex;
 flex-direction: column;
 background-color: #0f0f0f;
 }
-
-/* Login Page Specifics */
-#login-page {
+#login-page{
 align-items: center;
 justify-content: center;
 padding: 20px;
 text-align: center;
 }
-
-.login-container {
+#login-container{
 background-color: #1a1a1a;
 padding: 35px;
 border-radius: 12px;
@@ -52,14 +46,14 @@ flex-direction: column;
 align-items: center;
 }
 
-#login-page h2 {
+#login-page h2{
 margin-bottom: 30px;
 color: #f0f0f0;
 font-size: 2.4em;
 font-weight: 600;
 }
 
-#login-page input {
+#login-page input{
 margin: 15px 0;
 padding: 16px;
 width: 100%;
@@ -71,7 +65,7 @@ font-size: 1.1em;
 }
 
 #login-page input::placeholder {
-color: #888; /* Lighter placeholder text */
+color: #888;
 }
 
 #login-page button {
@@ -89,34 +83,33 @@ transition: background 0.3s ease, transform 0.1s ease;
 box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
-button:hover {
+login-page button:hover {
 background: #0e8a6f;
 }
 
-#login-page button:active {
+login-page button:active {
 transform: translateY(2px);
 }
 
-.error {
-color: #ff6b6b; /* Soft red for dark theme */
+#error{
+color: #ff6b6b; 
 font-size: 1em;
 margin-top: 15px;
 text-align: center;
 font-weight: 500;
 }
 
-.chat-container {
-flex: 1; / Allows it to grow and fill available space /
+#chat-container{
+flex: 1; 
 display: flex;
 flex-direction: column;
 max-width: 800px;
 width: 100%;
 margin: 0 auto;
 box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-height: 100%; / Ensures flex items within can take full height */
+height: 100%; 
 }
 
-/* Header - REMAINS FIXED */
 #header {
 display: flex;
 justify-content: space-between;
@@ -128,7 +121,7 @@ min-height: 60px;
 border-bottom: 1px solid #333;
 box-sizing: border-box;
 
-position: fixed; /* Should now work correctly relative to viewport */  
+position: fixed; /
 top: 0;  
 left: 0;  
 width: 100%;  
@@ -175,8 +168,8 @@ transform: translateY(1px);
 #chat-box {
 padding-left: 15px;
 padding-right: 15px;
-padding-top: 90px; / Space for fixed header (60px min-height + 30px padding) /
-padding-bottom: 120px; / Space for fixed input area + potential mobile keyboard */
+padding-top: 90px; 
+padding-bottom: 120px;
 
 background-image: url('image_87c260.png');  
 background-repeat: repeat;  
@@ -184,16 +177,16 @@ background-size: auto;
 background-color: #0f0f0f;  
 display: flex;  
 flex-direction: column;  
-flex-grow: 1; /* Allows it to expand and fill available height */  
-justify-content: flex-end; /* Keep messages at the bottom */  
-overflow-y: auto; /* Make this specific area scrollable */  
--webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS devices */  
-flex-shrink: 1; /* Allows it to shrink if content is small */  
-position: relative; /* Needed to ensure z-index of messages/scroll */
+flex-grow: 1; 
+justify-content: flex-end; 
+overflow-y: auto; 
+-webkit-overflow-scrolling: touch; 
+flex-shrink: 1; 
+position: relative; 
 
 }
 
-/* Individual Message Styles */
+
 .msg {
 max-width: 80%;
 padding: 10px 14px;
@@ -212,17 +205,16 @@ color: #e0e0e0;
 
 .msg.left {
 align-self: flex-start;
-background-color: #2a2a2a; /* Dark grey for incoming messages */
+background-color: #2a2a2a; 
 border-top-left-radius: 8px;
 }
 
 .msg.right {
 align-self: flex-end;
-background-color: #128c7e; /* Darker green for outgoing messages */
+background-color: #128c7e; 
 border-top-right-radius: 8px;
 }
 
-/* Container for message text and status icon */
 .message-content {
 display: flex;
 align-items: flex-end;
@@ -248,12 +240,10 @@ display: inline-flex;
 align-items: center;
 }
 
-/* Blue tick for seen messages - applies only to 'right' (outgoing) messages that are 'seen' */
 .msg.right.seen .message-status {
 color: #4fc3f7;
 }
 
-/* Specific styling for left/right messages - ensure flex-direction is correct */
 .msg.left .message-content {
 flex-direction: row;
 }
@@ -262,7 +252,6 @@ flex-direction: row;
 flex-direction: row;
 }
 
-/* Reply Quote inside message bubble */
 .reply-quote {
 background-color: rgba(255, 255, 255, 0.15);
 border-left: 3px solid #007bff;
@@ -281,7 +270,6 @@ font-weight: 500;
 color: #e0e0e0;
 }
 
-/* Reply Box Indicator (at bottom above input) */
 #reply-box {
 padding: 10px 15px;
 background-color: #1a1a1a;
@@ -318,7 +306,6 @@ transition: color 0.2s ease;
 color: #f0f0f0;
 }
 
-/* Input Area - REMAINS FIXED at the bottom */
 #input-area {
 display: flex;
 align-items: flex-end;
@@ -327,7 +314,7 @@ background: #1a1a1a;
 border-top: 1px solid #333;
 box-sizing: border-box;
 
-position: fixed; /* Should now work correctly relative to viewport */  
+position: fixed; 
 bottom: 0;  
 left: 0;  
 width: 100%;  
@@ -356,7 +343,6 @@ overflow-y: auto;
 color: #888;
 }
 
-/* Send Button */
 #input-area button {
 margin-left: 10px;
 padding: 14px 22px;
@@ -387,7 +373,6 @@ min-height: 35px;
 text-align: center;
 }
 
-/* --- Styles for Swipe to Reply --- */
 .msg.swiped-for-reply {
 transform: translateX(60px);
 }
