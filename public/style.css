@@ -8,29 +8,29 @@ box-sizing: border-box;
 }
 
 
-/* Base HTML & Body Styles - IMPORTANT structural changes here /
+/* Base HTML & Body Styles - IMPORTANT structural changes here */
 html, body {
 margin: 0;
 padding: 0;
-height: 100vh; / Use vh for full viewport height /
+height: 100vh; /* Use vh for full viewport height */
 width: 100%;
-background-color: #000000; / Fully black for the very edges of the screen /
+background-color: #000000; /* Fully black for the very edges of the screen */
 font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 font-size: 18px;
-color: #e0e0e0; / Default text color for dark background /
-overflow: hidden; / Prevent scrolling on html/body itself */
+color: #e0e0e0; /* Default text color for dark background */
+overflow: hidden; /* Prevent scrolling on html/body itself */
 overscroll-behavior-y: contain;
 }
 
-/* Overall app containers - IMPORTANT structural changes here /
+/* Overall app containers - IMPORTANT structural changes here */
 #chat-page, #login-page {
-height: 100vh; / Also match viewport height /
+height: 100vh; /* Also match viewport height */
 width: 100%;
 display: flex;
 flex-direction: column;
-background-color: #0f0f0f; / Very dark background for main content areas */
+background-color: #0f0f0f; /* Very dark background for main content areas */
 }
 
 /* Login Page Specifics */
@@ -42,10 +42,10 @@ text-align: center;
 }
 
 .login-container {
-background-color: #1a1a1a; /* Slightly lighter dark background for login box /
+background-color: #1a1a1a; /* Slightly lighter dark background for login box */
 padding: 35px;
 border-radius: 12px;
-box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); / Stronger shadow for dark theme */
+box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for dark theme */
 width: 90%;
 max-width: 450px;
 display: flex;
@@ -65,9 +65,9 @@ margin: 15px 0;
 padding: 16px;
 width: 100%;
 border-radius: 10px;
-border: 1px solid #444; /* Slightly lighter border for inputs /
-background-color: #2a2a2a; / Darker input background /
-color: #f0f0f0; / Lighter text color inside input */
+border: 1px solid #444; /* Slightly lighter border for inputs */
+background-color: #2a2a2a; /* Darker input background */
+color: #f0f0f0; /* Lighter text color inside input */
 font-size: 1.1em;
 }
 
@@ -106,16 +106,16 @@ text-align: center;
 font-weight: 500;
 }
 
-/* Chat Page Specifics /
+/* Chat Page Specifics */
 .chat-container {
-flex: 1; / Allows it to grow and fill available space /
+flex: 1; /* Allows it to grow and fill available space */
 display: flex;
 flex-direction: column;
 max-width: 800px;
 width: 100%;
 margin: 0 auto;
 box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-height: 100%; / Ensures flex items within can take full height */
+height: 100%; /* Ensures flex items within can take full height */
 }
 
 /* Header - REMAINS FIXED */
@@ -174,12 +174,12 @@ background-color: rgba(255, 255, 255, 0.1);
 transform: translateY(1px);
 }
 
-/* Chat Box (Messages Area) - NOW THE MAIN SCROLLABLE AREA /
+/* Chat Box (Messages Area) - NOW THE MAIN SCROLLABLE AREA */
 #chat-box {
 padding-left: 15px;
 padding-right: 15px;
-padding-top: 90px; / Space for fixed header (60px min-height + 30px padding) /
-padding-bottom: 120px; / Space for fixed input area + potential mobile keyboard */
+padding-top: 90px; /* Space for fixed header (60px min-height + 30px padding) */
+padding-bottom: 120px; /* Space for fixed input area + potential mobile keyboard */
 
 background-image: url('image_87c260.png');  
 background-repeat: repeat;  
@@ -382,11 +382,11 @@ background: #0e8a6f;
 transform: translateY(2px);
 }
 
-/* Typing Status Indicator /
+/* Typing Status Indicator */
 #typing-status {
 padding: 8px 15px;
 font-size: 0.9em;
-color: white; / Changed to a bright blue for visibility */
+color: white; /* Changed to a bright blue for visibility */
 min-height: 35px;
 text-align: center;
 }
