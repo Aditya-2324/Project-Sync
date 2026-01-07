@@ -27,7 +27,7 @@ socket.on('login', ({ username, password }) => {
     if (users[username]) {  
         bcrypt.compare(password, users[username].passwordHash, (err, result) => {  
             if (err) {  
-                console.error("Bcrypt comparison error:", err);  
+                console.error(`Bcrypt comparison error:`, err);  
                 socket.emit('loginFailed');  
                 return;  
             }  
@@ -126,7 +126,7 @@ socket.on('disconnect', () => {
     } else if (currentUser) {  
          console.log(`${currentUser} disconnected from a non-primary session (or socketId mismatch).`);  
     } else {  
-         console.log("An unknown user disconnected.");  
+         console.log(`An unknown user disconnected.`);  
     }  
 });
 
