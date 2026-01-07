@@ -1,3 +1,4 @@
+
 const socket = io();
 
 let currentUser = null;
@@ -151,7 +152,7 @@ msgInHistory.seen = update.seen;
 }
 
 // Update DOM  
-    const msgDiv = document.querySelector(`[data-timestamp="${update.timestamp}"]`);  
+    const msgDiv = document.querySelector([data-timestamp="${update.timestamp}"]);  
     if (msgDiv) {  
         const smallTag = msgDiv.querySelector('.message-status'); // Use the class name  
         if (smallTag) {  
