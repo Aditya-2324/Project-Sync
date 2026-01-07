@@ -8,31 +8,28 @@ box-sizing: border-box;
 }
 
 
-/* Base HTML & Body Styles - IMPORTANT structural changes here /
-html, body {
+{
 margin: 0;
 padding: 0;
-height: 100vh; / Use vh for full viewport height /
+height: 100vh;
 width: 100%;
-background-color: #000000; / Fully black for the very edges of the screen /
+background-color: #000000;
 font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 font-size: 18px;
-color: #e0e0e0; / Default text color for dark background /
-overflow: hidden; / Prevent scrolling on html/body itself */
-height: 100%;
+color: #e0e0e0; 
+overflow: hidden; 
 overscroll-behavior-y: contain;
 }
 
-/* Overall app containers - IMPORTANT structural changes here /
-#chat-page, #login-page {
-height: 100vh; / Also match viewport height /
-min-height: 0;
+
+.{
+height: 100vh;
 width: 100%;
 display: flex;
 flex-direction: column;
-background-color: #0f0f0f; / Very dark background for main content areas */
+background-color: #0f0f0f;
 }
 
 /* Login Page Specifics */
@@ -44,10 +41,10 @@ text-align: center;
 }
 
 .login-container {
-background-color: #1a1a1a; /* Slightly lighter dark background for login box /
+background-color: #1a1a1a;
 padding: 35px;
 border-radius: 12px;
-box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); / Stronger shadow for dark theme */
+box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
 width: 90%;
 max-width: 450px;
 display: flex;
@@ -57,7 +54,7 @@ align-items: center;
 
 #login-page h2 {
 margin-bottom: 30px;
-color: #f0f0f0; /* Lighter text for title */
+color: #f0f0f0;
 font-size: 2.4em;
 font-weight: 600;
 }
@@ -67,9 +64,9 @@ margin: 15px 0;
 padding: 16px;
 width: 100%;
 border-radius: 10px;
-border: 1px solid #444; /* Slightly lighter border for inputs /
-background-color: #2a2a2a; / Darker input background /
-color: #f0f0f0; / Lighter text color inside input */
+border: 1px solid #444;
+background-color: #2a2a2a;
+color: #f0f0f0;
 font-size: 1.1em;
 }
 
@@ -92,7 +89,7 @@ transition: background 0.3s ease, transform 0.1s ease;
 box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
-#login-page button:hover {
+button:hover {
 background: #0e8a6f;
 }
 
@@ -108,7 +105,6 @@ text-align: center;
 font-weight: 500;
 }
 
-/* Chat Page Specifics /
 .chat-container {
 flex: 1; / Allows it to grow and fill available space /
 display: flex;
@@ -118,7 +114,6 @@ width: 100%;
 margin: 0 auto;
 box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
 height: 100%; / Ensures flex items within can take full height */
-min-height: 0;
 }
 
 /* Header - REMAINS FIXED */
@@ -178,25 +173,24 @@ transform: translateY(1px);
 }
 
 #chat-box {
-    flex: 1;
-    min-height: 0; /*  MOST IMPORTANT LINE */
+padding-left: 15px;
+padding-right: 15px;
+padding-top: 90px; / Space for fixed header (60px min-height + 30px padding) /
+padding-bottom: 120px; / Space for fixed input area + potential mobile keyboard */
 
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 90px;
-    padding-bottom: 120px;
+background-image: url('image_87c260.png');  
+background-repeat: repeat;  
+background-size: auto;  
+background-color: #0f0f0f;  
+display: flex;  
+flex-direction: column;  
+flex-grow: 1; /* Allows it to expand and fill available height */  
+justify-content: flex-end; /* Keep messages at the bottom */  
+overflow-y: auto; /* Make this specific area scrollable */  
+-webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS devices */  
+flex-shrink: 1; /* Allows it to shrink if content is small */  
+position: relative; /* Needed to ensure z-index of messages/scroll */
 
-    background-image: url('image_87c260.png');
-    background-repeat: repeat;
-    background-size: auto;
-    background-color: #0f0f0f;
-
-    display: flex;
-    flex-direction: column;
-
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
 }
 
 /* Individual Message Styles */
@@ -385,7 +379,6 @@ background: #0e8a6f;
 transform: translateY(2px);
 }
 
-/* Typing Status Indicator /
 #typing-status {
 padding: 8px 15px;
 font-size: 0.9em;
