@@ -21,17 +21,25 @@ const cancelReplyBtn = document.getElementById("cancel-reply");
 const clearChatBtn = document.getElementById("clear-chat-btn");
 
 window.login = function () {
+
+    if (!username || !password) {
+        console.error("Username or Password input not found");
+        return;
+    }
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
-
-    if (username && password) {
-    socket.emit("login", { username, password });
-} else {
-        loginError.textContent = "Please enter username and password.";
+    
+    if (!username || !password) {
+        errorText.textContent("Please enter Username and Password");
+        return;
     }
-};
+    socket.emit("login", { username, password });
 
-socket.on("loginSuccess", (data) => {
+    socket.once("loginFailed", () => {
+        errorText.textContent = "Invalid username or password";
+    });
+
+socket.once("loginSuccess", (data) => {
     currentUser = data.username;
     chatHistory = data.chatHistory;
 
